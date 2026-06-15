@@ -81,17 +81,19 @@ body {
 .usage-row {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: .6rem;
   margin-top: .6rem;
   flex-wrap: wrap;
-  justify-content: center;
+  line-height: 1;
 }
 
 .btn-upgrade-inline {
   background: none;
   border: 1.5px solid var(--text-dark);
   border-radius: var(--radius-pill);
-  padding: .3rem .85rem;
+  padding: 0 .85rem;
+  height: 30px;
   font-family: var(--font-ui);
   font-size: .75rem;
   font-weight: 600;
@@ -99,6 +101,8 @@ body {
   cursor: pointer;
   transition: background .15s, color .15s;
   letter-spacing: .2px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-upgrade-inline:hover {
@@ -111,7 +115,6 @@ body {
   display: inline-flex;
   align-items: center;
   gap: .45rem;
-  margin-top: .6rem;
   padding: .35rem .9rem;
   border-radius: var(--radius-pill);
   font-size: .75rem;
@@ -120,6 +123,7 @@ body {
   background: rgba(26,26,26,.06);
   color: var(--text-mid);
   cursor: default;
+  height: 30px;
 }
 
 .usage-pill.warn {

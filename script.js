@@ -253,7 +253,9 @@ function setIngredient(value) {
 // GENERATE
 // ==============================
 async function generateRecipe() {
-    const ingredient = document.getElementById('ingredient').value.trim();
+    // Parse natural language — take the first ingredient before 'and', '&', or ','  
+    const raw = document.getElementById('ingredient').value.trim();
+    const ingredient = raw.split(/\s+and\s+|\s*[,&]\s*/i)[0].trim();
     if (!ingredient) {
         toast('Please enter an ingredient first!');
         document.getElementById('ingredient').focus();

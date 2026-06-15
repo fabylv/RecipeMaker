@@ -24,6 +24,9 @@
         <em>endless possibilities.</em>
       </h1>
       <p class="subhead">Type anything in your kitchen — then set the style.</p>
+
+      <!-- Usage pill -->
+      <div class="usage-pill" id="usagePill"></div>
     </header>
 
     <main>
@@ -46,13 +49,11 @@
       <!-- Filters -->
       <div class="filters-panel">
         <p class="filters-label">COOKING STYLE — PICK ANY COMBINATION</p>
-
         <div class="filters-grid">
 
-          <!-- Cuisine -->
           <div class="filter-group">
             <p class="group-label">CUISINE</p>
-            <div class="pills" id="pillsCuisine">
+            <div class="pills">
               <button class="pill" data-group="cuisine" data-value="Italian">🍕 Italian</button>
               <button class="pill" data-group="cuisine" data-value="Asian">🥢 Asian</button>
               <button class="pill" data-group="cuisine" data-value="Mexican">🌮 Mexican</button>
@@ -64,10 +65,9 @@
             </div>
           </div>
 
-          <!-- Dietary -->
           <div class="filter-group">
             <p class="group-label">DIETARY</p>
-            <div class="pills" id="pillsDietary">
+            <div class="pills">
               <button class="pill" data-group="dietary" data-value="Vegan">🌱 Vegan</button>
               <button class="pill" data-group="dietary" data-value="Vegetarian">🥦 Vegetarian</button>
               <button class="pill" data-group="dietary" data-value="Keto">🥑 Keto</button>
@@ -77,10 +77,9 @@
             </div>
           </div>
 
-          <!-- Meal Type -->
           <div class="filter-group">
             <p class="group-label">MEAL TYPE</p>
-            <div class="pills" id="pillsMeal">
+            <div class="pills">
               <button class="pill" data-group="meal" data-value="Breakfast">🍳 Breakfast</button>
               <button class="pill" data-group="meal" data-value="Lunch">☀️ Lunch</button>
               <button class="pill" data-group="meal" data-value="Dinner">🌙 Dinner</button>
@@ -90,10 +89,9 @@
             </div>
           </div>
 
-          <!-- Cooking Method -->
           <div class="filter-group">
             <p class="group-label">COOKING METHOD</p>
-            <div class="pills" id="pillsMethod">
+            <div class="pills">
               <button class="pill" data-group="method" data-value="Grilled">🔥 Grilled</button>
               <button class="pill" data-group="method" data-value="Baked">🫙 Baked</button>
               <button class="pill" data-group="method" data-value="Sautéed">🍳 Stir-fried</button>
@@ -154,6 +152,70 @@
 
   <!-- Toast -->
   <div id="toastEl" class="toast"></div>
+
+  <!-- ===================== PAYWALL MODAL ===================== -->
+  <div class="modal-overlay hidden" id="paywallModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closePaywall()">✕</button>
+
+      <div class="modal-hero">
+        <p class="modal-eyebrow">YOU'VE COOKED THROUGH YOUR FREE RECIPES</p>
+        <h2 class="modal-title">Keep the inspiration<br><em>going all month.</em></h2>
+        <p class="modal-sub">Upgrade to unlock more recipes and never hit a wall in the kitchen.</p>
+      </div>
+
+      <div class="plans">
+
+        <!-- Free (current) -->
+        <div class="plan plan--free">
+          <div class="plan-top">
+            <span class="plan-name">Free</span>
+            <span class="plan-current-badge">Current</span>
+          </div>
+          <p class="plan-price">$0<span>/mo</span></p>
+          <ul class="plan-features">
+            <li>✓ 5 recipes / month</li>
+            <li>✓ All cuisines & filters</li>
+            <li>✓ Save & share</li>
+          </ul>
+        </div>
+
+        <!-- Pro -->
+        <div class="plan plan--pro">
+          <div class="plan-top">
+            <span class="plan-name">Pro</span>
+            <span class="plan-badge">Most Popular</span>
+          </div>
+          <p class="plan-price">$4.99<span>/mo</span></p>
+          <ul class="plan-features">
+            <li>✓ 30 recipes / month</li>
+            <li>✓ All cuisines & filters</li>
+            <li>✓ Save & share</li>
+            <li>✓ Priority new features</li>
+          </ul>
+          <button class="btn-plan btn-plan--pro" onclick="upgradePlan('pro')">Get Pro →</button>
+        </div>
+
+        <!-- Chef -->
+        <div class="plan plan--chef">
+          <div class="plan-top">
+            <span class="plan-name">Chef</span>
+          </div>
+          <p class="plan-price">$9.99<span>/mo</span></p>
+          <ul class="plan-features">
+            <li>✓ Unlimited recipes</li>
+            <li>✓ All cuisines & filters</li>
+            <li>✓ Save & share</li>
+            <li>✓ Early access & requests</li>
+          </ul>
+          <button class="btn-plan btn-plan--chef" onclick="upgradePlan('chef')">Go Unlimited →</button>
+        </div>
+
+      </div>
+
+      <p class="modal-fine">Cancel anytime. No hidden fees.</p>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

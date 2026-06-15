@@ -2,52 +2,153 @@
    Recipe Maker — script.js
    =========================== */
 
-// ---- Pill toggle logic ----
-// Only one active per group (radio behavior); click again to deselect
+// ==============================
+// PLAN CONFIG — easy to adjust
+// ==============================
+const PLANS = {
+  free: { label: 'Free',  limit: 5  },
+  pro:  { label: 'Pro',   limit: 30 },
+  chef: { label: 'Chef',  limit: Infinity },
+};
+
+const USAGE_KEY  = 'rm_usage';   // { month: 'YYYY-MM', count: N }
+const PLAN_KEY   = 'rm_plan';    // 'free' | 'pro' | 'chef'
+const SAVED_KEY  = 'rm_saved';
+
+// ==============================
+// USAGE / PLAN HELPERS
+// ==============================
+function currentMonth() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function getUsage() {
+  try {
+    const u = JSON.parse(localStorage.getItem(USAGE_KEY));
+    if (u && u.month === currentMonth()) return u;
+  } catch {}
+  return { month: currentMonth(), count: 0 };
+}
+
+function setUsage(u) { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); }
+
+function getPlan()   { return localStorage.getItem(PLAN_KEY) || 'free'; }
+function setPlan(p)  { localStorage.setItem(PLAN_KEY, p); }
+
+function getLimit()  { return PLANS[getPlan()].limit; }
+
+function recipesLeft() {
+  const limit = getLimit();
+  if (limit === Infinity) return Infinity;
+  return Math.max(0, limit - getUsage().count);
+}
+
+function incrementUsage() {
+  const u = getUsage();
+  u.count++;
+  setUsage(u);
+}
+
+// ---- Usage pill ----
+function renderUsagePill() {
+  const pill  = document.getElementById('usagePill');
+  const plan  = getPlan();
+  const limit = getLimit();
+  const left  = recipesLeft();
+
+  if (limit === Infinity) {
+    pill.className = 'usage-pill pro';
+    pill.innerHTML = `<span class="usage-dot"></span> Chef Plan — Unlimited recipes`;
+    return;
+  }
+
+  if (plan !== 'free') {
+    pill.className = 'usage-pill pro';
+    pill.innerHTML = `<span class="usage-dot"></span> ${PLANS[plan].label} Plan — ${left} of ${limit} recipes left this month`;
+    return;
+  }
+
+  pill.className = left <= 1 ? 'usage-pill warn' : 'usage-pill';
+  pill.innerHTML = `<span class="usage-dot"></span> ${left} of ${limit} free recipes left this month`;
+}
+
+// ==============================
+// PAYWALL
+// ==============================
+function openPaywall() {
+  document.getElementById('paywallModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePaywall() {
+  document.getElementById('paywallModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function upgradePlan(plan) {
+  // TODO: Replace with real Stripe Checkout redirect
+  // e.g. window.location.href = '/checkout?plan=' + plan;
+  // For now: simulate successful upgrade
+  setPlan(plan);
+  closePaywall();
+  renderUsagePill();
+  toast(`✨ Welcome to ${PLANS[plan].label}! You're all set.`);
+}
+
+// Close on overlay click
+document.getElementById('paywallModal').addEventListener('click', function(e) {
+  if (e.target === this) closePaywall();
+});
+
+// ==============================
+// PILL TOGGLE LOGIC
+// ==============================
 document.querySelectorAll('.pill').forEach(pill => {
   pill.addEventListener('click', () => {
     const group = pill.dataset.group;
-    // Deselect siblings in same group
     document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
-    // Toggle this one
     pill.classList.toggle('active');
   });
 });
 
 function getActive(group) {
-  const active = document.querySelector(`.pill[data-group="${group}"].active`);
-  return active ? active.dataset.value : '';
+  const el = document.querySelector(`.pill[data-group="${group}"].active`);
+  return el ? el.dataset.value : '';
 }
 
-// ---- Storage helpers ----
-const STORAGE_KEY = 'recipeMaker_saved';
-
+// ==============================
+// SAVED RECIPES
+// ==============================
 function getSaved() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  try { return JSON.parse(localStorage.getItem(SAVED_KEY)) || []; }
   catch { return []; }
 }
 
-function setSaved(arr) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-}
+function setSaved(arr) { localStorage.setItem(SAVED_KEY, JSON.stringify(arr)); }
 
-// ---- State ----
-let currentRecipe = null;
-
-// ---- Update saved count badge ----
 function updateSavedCount() {
   document.getElementById('savedCount').textContent = getSaved().length;
 }
 
-// ---- Toast ----
+// ==============================
+// TOAST
+// ==============================
 function toast(msg) {
   const el = document.getElementById('toastEl');
   el.textContent = msg;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
+  setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-// ---- Recipe generation ----
+// ==============================
+// CURRENT RECIPE STATE
+// ==============================
+let currentRecipe = null;
+
+// ==============================
+// GENERATE
+// ==============================
 async function generateRecipe() {
   const ingredient = document.getElementById('ingredient').value.trim();
   if (!ingredient) {
@@ -56,30 +157,46 @@ async function generateRecipe() {
     return;
   }
 
-  const cuisine  = getActive('cuisine');
-  const dietary  = getActive('dietary');
-  const meal     = getActive('meal');
-  const method   = getActive('method');
+  // ---- Paywall check ----
+  if (recipesLeft() <= 0) {
+    openPaywall();
+    return;
+  }
 
-  const btn     = document.getElementById('generateBtn');
-  const btnText = document.getElementById('btnText');
-  const loader  = document.getElementById('btnLoader');
-  btn.disabled  = true;
-  btnText.classList.add('hidden');
+  const cuisine = getActive('cuisine');
+  const dietary = getActive('dietary');
+  const meal    = getActive('meal');
+  const method  = getActive('method');
+
+  const btn    = document.getElementById('generateBtn');
+  const text   = document.getElementById('btnText');
+  const loader = document.getElementById('btnLoader');
+  btn.disabled = true;
+  text.classList.add('hidden');
   loader.classList.remove('hidden');
 
   await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
+
+  incrementUsage();
+  renderUsagePill();
 
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
   currentRecipe = recipe;
   renderRecipe(recipe);
 
   btn.disabled = false;
-  btnText.classList.remove('hidden');
+  text.classList.remove('hidden');
   loader.classList.add('hidden');
+
+  // Nudge on last free recipe
+  if (getPlan() === 'free' && recipesLeft() === 0) {
+    setTimeout(() => toast("That was your last free recipe this month! Upgrade to keep going 🍽"), 1500);
+  }
 }
 
-// ---- Render ----
+// ==============================
+// RENDER RECIPE
+// ==============================
 function renderRecipe(r) {
   document.getElementById('recipeName').textContent = r.name;
 
@@ -94,45 +211,44 @@ function renderRecipe(r) {
 
   document.getElementById('ingredientsList').innerHTML =
     r.ingredients.map(i => `<li>${i}</li>`).join('');
-
   document.getElementById('instructionsList').innerHTML =
     r.steps.map(s => `<li>${s}</li>`).join('');
-
   document.getElementById('resultMeta').innerHTML =
     `<span>⏱ ${r.time}</span><span>🍽 Serves ${r.serves}</span><span>📊 ${r.difficulty}</span>`;
 
-  const resultEl = document.getElementById('result');
-  resultEl.classList.remove('hidden');
-  setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  const el = document.getElementById('result');
+  el.classList.remove('hidden');
+  setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
 }
 
-// ---- Recipe builder ----
+// ==============================
+// RECIPE BUILDER
+// ==============================
 function buildRecipe(ingredient, cuisine, dietary, meal, method) {
   const ing  = capitalize(ingredient);
   const cui  = cuisine || pick(['Italian','Mediterranean','Asian','American','French']);
   const diet = dietary || '';
   const ml   = meal   || pick(['Lunch','Dinner','Snack']);
   const meth = method || pick(['Baked','Grilled','Sautéed','Roasted']);
-
-  const template = getTemplate(ing, cui, diet, ml, meth);
+  const t    = getTemplate(ing, cui, diet, ml, meth);
   return {
-    name: template.name, cuisine, dietary, meal, method,
-    ingredients: template.ingredients, steps: template.steps,
-    time: template.time, serves: template.serves, difficulty: template.difficulty,
+    name: t.name, cuisine, dietary, meal, method,
+    ingredients: t.ingredients, steps: t.steps,
+    time: t.time, serves: t.serves, difficulty: t.difficulty,
     rawIngredient: ingredient,
   };
 }
 
 function getTemplate(ing, cui, diet, ml, meth) {
-  const adjective = pick(['Rustic','Golden','Fresh','Herb-Roasted','Spiced','Zesty','Smoky','Creamy','Simple','Quick']);
-  const name = `${adjective} ${cuisineStyle(cui)}${ing} ${mealSuffix(ml)}`;
+  const adj  = pick(['Rustic','Golden','Fresh','Herb-Roasted','Spiced','Zesty','Smoky','Creamy','Simple','Quick']);
+  const name = `${adj} ${cuisineStyle(cui)}${ing} ${mealSuffix(ml)}`;
   return {
     name,
     ingredients: [...baseIngredients(ing, cui, diet), ...extraIngredients(meth)],
-    steps: buildSteps(ing, meth, cui, diet),
-    time: cookTime(meth),
-    serves: pick(['2','4','2–4','6']),
-    difficulty: pick(['Easy','Easy','Moderate','Easy']),
+    steps:       buildSteps(ing, meth),
+    time:        cookTime(meth),
+    serves:      pick(['2','4','2–4','6']),
+    difficulty:  pick(['Easy','Easy','Moderate','Easy']),
   };
 }
 
@@ -143,126 +259,79 @@ function baseIngredients(ing, cui, diet) {
     `1 medium onion, diced`,
     `2 tbsp olive oil`,
     `Salt & black pepper to taste`,
-    pick(['Fresh herbs (parsley, basil, or thyme)','1 lemon, zested and juiced','Red pepper flakes (optional)']),
+    pick(['Fresh herbs (parsley, basil, or thyme)', '1 lemon, zested and juiced', 'Red pepper flakes (optional)']),
   ];
-  const cuiExtras = {
-    Italian:          ['½ cup cherry tomatoes', '¼ cup Parmesan, grated'],
-    Mexican:          ['1 tsp cumin', '1 tsp chili powder', 'Fresh cilantro'],
-    Asian:            ['2 tbsp soy sauce', '1 tsp sesame oil', '1 tsp fresh ginger'],
-    Mediterranean:    ['¼ cup Kalamata olives', '1 tsp dried oregano'],
-    Indian:           ['1 tsp turmeric', '1 tsp garam masala', '1 can coconut milk'],
-    American:         ['2 tbsp butter', '1 tsp smoked paprika'],
-    French:           ['½ cup dry white wine', '1 tbsp Dijon mustard'],
-    Japanese:         ['2 tbsp miso paste', '1 tbsp mirin', '1 tsp rice vinegar'],
-    Thai:             ['2 tbsp fish sauce (or soy sauce)', '1 tbsp Thai red curry paste', 'Fresh basil'],
-    Greek:            ['½ cup feta, crumbled', '1 tsp dried oregano', 'Lemon juice'],
-    'Middle Eastern': ['1 tsp cumin', '1 tsp coriander', 'Fresh mint'],
+  const extras = {
+    Italian:'½ cup cherry tomatoes, ¼ cup Parmesan grated'.split(','),
+    Mexican:'1 tsp cumin, 1 tsp chili powder, Fresh cilantro'.split(','),
+    Asian:'2 tbsp soy sauce, 1 tsp sesame oil, 1 tsp fresh ginger'.split(','),
+    Mediterranean:'¼ cup Kalamata olives, 1 tsp dried oregano'.split(','),
+    Indian:'1 tsp turmeric, 1 tsp garam masala, 1 can coconut milk'.split(','),
+    American:'2 tbsp butter, 1 tsp smoked paprika'.split(','),
+    French:'½ cup dry white wine, 1 tbsp Dijon mustard'.split(','),
+    Japanese:'2 tbsp miso paste, 1 tbsp mirin, 1 tsp rice vinegar'.split(','),
+    Thai:'2 tbsp fish sauce (or soy sauce), 1 tbsp Thai red curry paste, Fresh basil'.split(','),
+    Greek:'½ cup feta crumbled, 1 tsp dried oregano, Lemon juice'.split(','),
+    'Middle Eastern':'1 tsp cumin, 1 tsp coriander, Fresh mint'.split(','),
   };
-  return [...list, ...(cuiExtras[cui] || ['Fresh herbs of your choice'])];
+  return [...list, ...(extras[cui] || ['Fresh herbs of your choice']).map(s => s.trim())];
 }
 
 function extraIngredients(meth) {
-  const map = {
-    'Baked':          ['Parchment paper or foil for lining'],
-    'Grilled':        ['Oil for grilling'],
-    'Steamed':        ['Water or broth for steaming'],
-    'Roasted':        ['1 tbsp balsamic vinegar'],
-    'Slow Cooked':    ['1 cup vegetable broth', '1 bay leaf'],
-    'Air Fried':      ['Cooking spray'],
-    'Sautéed':        ['Splash of white wine or broth'],
-    'Fried':          ['Oil for frying'],
-    'Instant Pot':    ['1 cup broth or water', '1 bay leaf'],
-    'Raw / No-Cook':  ['Drizzle of extra-virgin olive oil'],
-  };
-  return map[meth] || [];
+  return {
+    'Baked':        ['Parchment paper or foil for lining'],
+    'Grilled':      ['Oil for grilling'],
+    'Steamed':      ['Water or broth for steaming'],
+    'Roasted':      ['1 tbsp balsamic vinegar'],
+    'Slow Cooked':  ['1 cup vegetable broth', '1 bay leaf'],
+    'Air Fried':    ['Cooking spray'],
+    'Sautéed':      ['Splash of white wine or broth'],
+    'Fried':        ['Oil for frying'],
+    'Instant Pot':  ['1 cup broth or water', '1 bay leaf'],
+    'Raw / No-Cook':['Drizzle of extra-virgin olive oil'],
+  }[meth] || [];
 }
 
-function buildSteps(ing, meth, cui, diet) {
+function buildSteps(ing, meth) {
   const prep = [
     `Wash and prepare the ${ing.toLowerCase()}. Pat dry if needed.`,
-    `Mince the garlic, dice the onion, and measure out all your ingredients.`,
+    `Mince the garlic, dice the onion, and measure all ingredients.`,
   ];
-  const cookMap = {
-    'Baked': [
-      `Preheat your oven to 400°F (200°C). Line a baking dish with parchment or lightly oil it.`,
-      `Toss the ${ing.toLowerCase()} with olive oil, garlic, onion, and your chosen seasonings.`,
-      `Arrange in a single layer. Add cuisine-specific extras on top.`,
-      `Bake for 25–35 minutes until cooked through and golden at the edges.`,
-      `Finish with fresh herbs or a squeeze of lemon. Taste and adjust.`,
-    ],
-    'Grilled': [
-      `Preheat your grill or grill pan to medium-high. Brush with oil.`,
-      `Marinate the ${ing.toLowerCase()} with oil, garlic, and seasonings for at least 10 minutes.`,
-      `Grill for 4–6 minutes per side until nicely charred and cooked through.`,
-      `Let rest 5 minutes before slicing. Add fresh herbs or sauce to finish.`,
-    ],
-    'Roasted': [
-      `Preheat oven to 425°F (220°C).`,
-      `Toss the ${ing.toLowerCase()} with olive oil, garlic, onion, and seasonings on a sheet pan.`,
-      `Spread in a single layer — don't crowd the pan.`,
-      `Roast 25–40 minutes, tossing once halfway, until tender and caramelized.`,
-      `Drizzle with balsamic and a finishing pinch of salt. Serve warm.`,
-    ],
-    'Sautéed': [
-      `Heat olive oil in a large skillet over medium-high until shimmering.`,
-      `Add onion and cook 3 minutes. Add garlic and cook 1 minute more.`,
-      `Add the ${ing.toLowerCase()} and cook, stirring occasionally, for 8–12 minutes.`,
-      `Deglaze with a splash of wine or broth if desired.`,
-      `Season generously, finish with herbs, and serve immediately.`,
-    ],
-    'Steamed': [
-      `Fill a pot with 1–2 inches of water or broth and bring to a gentle boil.`,
-      `Place the ${ing.toLowerCase()} in a steamer basket and season lightly.`,
-      `Steam 10–20 minutes until tender but not mushy.`,
-      `Warm olive oil with garlic in a small pan to make a quick drizzle sauce.`,
-      `Plate and drizzle the garlic oil over the top. Season to taste.`,
-    ],
-    'Slow Cooked': [
-      `Add the ${ing.toLowerCase()}, onion, garlic, and broth to your slow cooker.`,
-      `Stir in seasonings, herbs, and spices.`,
-      `Cook on LOW for 6–8 hours or HIGH for 3–4 hours.`,
-      `Taste and adjust seasoning near the end. Remove bay leaf if used.`,
-      `Serve over rice, crusty bread, or as-is.`,
-    ],
-    'Air Fried': [
-      `Preheat air fryer to 380°F (193°C).`,
-      `Toss the ${ing.toLowerCase()} with oil and seasonings.`,
-      `Arrange in a single layer — cook in batches if needed.`,
-      `Air fry 12–18 minutes, shaking halfway, until crisp and cooked through.`,
-      `Finish with fresh herbs and a squeeze of lemon.`,
-    ],
-    'Raw / No-Cook': [
-      `Slice or tear the ${ing.toLowerCase()} into your desired size.`,
-      `Whisk together olive oil, lemon juice, garlic, and a pinch of salt.`,
-      `Toss the ingredient with the dressing and any aromatics.`,
-      `Let sit 5–10 minutes for flavors to meld.`,
-      `Taste, adjust acid and salt, and serve fresh.`,
-    ],
+  const cook = {
+    'Baked':    [`Preheat oven to 400°F (200°C). Line baking dish with parchment.`,`Toss ${ing.toLowerCase()} with oil, garlic, onion, and seasonings.`,`Arrange in a single layer. Add extras on top.`,`Bake 25–35 min until golden at the edges.`,`Finish with fresh herbs or lemon. Adjust seasoning.`],
+    'Grilled':  [`Preheat grill or grill pan to medium-high. Brush with oil.`,`Marinate ${ing.toLowerCase()} with oil, garlic, and seasonings 10 min.`,`Grill 4–6 min per side until nicely charred.`,`Rest 5 min before slicing. Finish with herbs or sauce.`],
+    'Roasted':  [`Preheat oven to 425°F (220°C).`,`Toss ${ing.toLowerCase()} with oil, garlic, onion, and seasonings on a sheet pan.`,`Spread in a single layer — don't crowd.`,`Roast 25–40 min, tossing halfway, until caramelized.`,`Drizzle with balsamic and a pinch of finishing salt.`],
+    'Sautéed':  [`Heat oil in a large skillet over medium-high until shimmering.`,`Add onion, cook 3 min. Add garlic, cook 1 min more.`,`Add ${ing.toLowerCase()}, cook stirring 8–12 min.`,`Deglaze with a splash of wine or broth.`,`Season, finish with herbs, serve immediately.`],
+    'Slow Cooked':[`Add ${ing.toLowerCase()}, onion, garlic, and broth to slow cooker.`,`Stir in all seasonings and herbs.`,`Cook on LOW 6–8 hrs or HIGH 3–4 hrs.`,`Taste and adjust seasoning. Remove bay leaf.`,`Serve over rice, bread, or as-is.`],
+    'Air Fried':[`Preheat air fryer to 380°F (193°C).`,`Toss ${ing.toLowerCase()} with oil and seasonings.`,`Arrange in a single layer — cook in batches.`,`Air fry 12–18 min, shaking halfway.`,`Finish with herbs and a squeeze of lemon.`],
+    'Raw / No-Cook':[`Slice or tear ${ing.toLowerCase()} to desired size.`,`Whisk together oil, lemon juice, garlic, and a pinch of salt.`,`Toss ingredient with dressing and aromatics.`,`Let sit 5–10 min for flavors to meld.`,`Taste, adjust acid and salt, serve fresh.`],
   };
-  return [...prep, ...(cookMap[meth] || cookMap['Roasted'])];
+  return [...prep, ...(cook[meth] || cook['Roasted'])];
 }
 
-function cuisineStyle(cui) {
-  return { Italian:'Tuscan ', Mexican:'Baja ', Asian:'Asian-Style ', Mediterranean:'Mediterranean ',
-    Indian:'Spiced ', American:'', French:'French ', Japanese:'Japanese-Inspired ',
-    Thai:'Thai ', Greek:'Greek ', 'Middle Eastern':'Levant-Style ' }[cui] || '';
+function cuisineStyle(c) {
+  return {Italian:'Tuscan ',Mexican:'Baja ',Asian:'Asian-Style ',Mediterranean:'Mediterranean ',
+    Indian:'Spiced ',American:'',French:'French ',Japanese:'Japanese-Inspired ',
+    Thai:'Thai ',Greek:'Greek ','Middle Eastern':'Levant-Style '}[c] || '';
 }
 
-function mealSuffix(ml) {
-  return { Breakfast:'Bowl', Lunch:'Plate', Dinner:'Dish', Snack:'Bites',
-    Appetizer:'Starter', Dessert:'Treat', Soup:'Soup', Salad:'Salad' }[ml] || 'Dish';
+function mealSuffix(m) {
+  return {Breakfast:'Bowl',Lunch:'Plate',Dinner:'Dish',Snack:'Bites',
+    Appetizer:'Starter',Dessert:'Treat',Soup:'Soup',Salad:'Salad'}[m] || 'Dish';
 }
 
-function cookTime(meth) {
-  return { 'Baked':'40 min','Grilled':'25 min','Roasted':'45 min','Sautéed':'20 min',
+function cookTime(m) {
+  return {'Baked':'40 min','Grilled':'25 min','Roasted':'45 min','Sautéed':'20 min',
     'Steamed':'30 min','Slow Cooked':'6–8 hrs','Air Fried':'25 min',
-    'Fried':'20 min','Instant Pot':'35 min','Raw / No-Cook':'10 min' }[meth] || '30 min';
+    'Fried':'20 min','Instant Pot':'35 min','Raw / No-Cook':'10 min'}[m] || '30 min';
 }
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 
-// ---- Save ----
+// ==============================
+// SAVE / SHARE
+// ==============================
 function saveRecipe() {
   if (!currentRecipe) return;
   const saved = getSaved();
@@ -275,15 +344,29 @@ function saveRecipe() {
   toast('Recipe saved! 💾');
 }
 
-// ---- Toggle saved panel ----
-function toggleSaved() {
-  const section = document.getElementById('savedSection');
-  if (section.classList.contains('hidden')) {
-    renderSaved();
-    section.classList.remove('hidden');
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function shareRecipe() {
+  if (!currentRecipe) return;
+  const text = `🥘 ${currentRecipe.name}\n\n🛒 Ingredients:\n${currentRecipe.ingredients.map(i=>'• '+i).join('\n')}\n\n👩‍🍳 Instructions:\n${currentRecipe.steps.map((s,i)=>(i+1)+'. '+s).join('\n')}\n\n⏱ ${currentRecipe.time} · Serves ${currentRecipe.serves}`;
+  if (navigator.share) {
+    navigator.share({ title: currentRecipe.name, text }).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard! 📋'));
   } else {
-    section.classList.add('hidden');
+    toast('Sharing not supported on this browser');
+  }
+}
+
+// ==============================
+// SAVED PANEL
+// ==============================
+function toggleSaved() {
+  const s = document.getElementById('savedSection');
+  if (s.classList.contains('hidden')) {
+    renderSaved();
+    s.classList.remove('hidden');
+    setTimeout(() => s.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  } else {
+    s.classList.add('hidden');
   }
 }
 
@@ -297,7 +380,7 @@ function renderSaved() {
   list.innerHTML = saved.map((r, i) => `
     <div class="saved-item">
       <div class="saved-item-name">${r.name}</div>
-      <div class="saved-item-meta">${[r.cuisine, r.dietary, r.meal, r.method].filter(Boolean).join(' · ') || 'No filters'}</div>
+      <div class="saved-item-meta">${[r.cuisine,r.dietary,r.meal,r.method].filter(Boolean).join(' · ') || 'No filters'}</div>
       <div class="saved-item-actions">
         <button onclick="loadSaved(${i})">📖 View</button>
         <button onclick="deleteSaved(${i})">🗑 Delete</button>
@@ -306,47 +389,37 @@ function renderSaved() {
   `).join('');
 }
 
-function loadSaved(index) {
-  const r = getSaved()[index];
+function loadSaved(i) {
+  const r = getSaved()[i];
   if (!r) return;
   currentRecipe = r;
   renderRecipe(r);
   document.getElementById('ingredient').value = r.rawIngredient || '';
-  // Restore pill states
   document.querySelectorAll('.pill').forEach(p => {
-    const group = p.dataset.group;
-    const key = { cuisine:'cuisine', dietary:'dietary', meal:'meal', method:'method' }[group];
-    p.classList.toggle('active', key && r[key] === p.dataset.value);
+    const key = p.dataset.group;
+    p.classList.toggle('active', !!r[key] && r[key] === p.dataset.value);
   });
   toggleSaved();
 }
 
-function deleteSaved(index) {
+function deleteSaved(i) {
   const saved = getSaved();
-  saved.splice(index, 1);
+  saved.splice(i, 1);
   setSaved(saved);
   updateSavedCount();
   renderSaved();
   toast('Recipe deleted');
 }
 
-// ---- Share ----
-function shareRecipe() {
-  if (!currentRecipe) return;
-  const text = `🥘 ${currentRecipe.name}\n\n🛒 Ingredients:\n${currentRecipe.ingredients.map(i => '• '+i).join('\n')}\n\n👩‍🍳 Instructions:\n${currentRecipe.steps.map((s,i)=>(i+1)+'. '+s).join('\n')}\n\n⏱ ${currentRecipe.time} · Serves ${currentRecipe.serves}`;
-  if (navigator.share) {
-    navigator.share({ title: currentRecipe.name, text }).catch(() => {});
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard! 📋'));
-  } else {
-    toast('Sharing not supported on this browser');
-  }
-}
-
-// ---- Enter key ----
+// ==============================
+// ENTER KEY
+// ==============================
 document.getElementById('ingredient').addEventListener('keydown', e => {
   if (e.key === 'Enter') generateRecipe();
 });
 
-// ---- Init ----
+// ==============================
+// INIT
+// ==============================
+renderUsagePill();
 updateSavedCount();

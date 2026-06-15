@@ -355,8 +355,15 @@ body {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.25rem 0.85rem;
   margin-bottom: 1rem;
+}
+
+.affiliate-note {
+  font-size: .7rem;
+  color: var(--text-light);
+  margin-top: .6rem;
+  letter-spacing: .2px;
 }
 
 .affiliate-label {
@@ -409,9 +416,12 @@ body {
   flex-shrink: 0;
 }
 
-.aff-walmart  { background: #0071ce; color: #fff; }
-.aff-instacart { background: #43b02a; color: #fff; font-size: 1rem; line-height: 1; }
-.aff-amazon   { background: #ff9900; color: #fff; font-style: italic; }
+.aff-walmart    { background: #0071ce; color: #fff; }
+.aff-instacart  { background: #43b02a; color: #fff; font-size: 1rem; line-height: 1; }
+.aff-amazon     { background: #ff9900; color: #fff; font-style: italic; }
+.aff-target     { background: #cc0000; color: #fff; font-weight: 900; }
+.aff-kroger     { background: #003087; color: #fff; }
+.aff-wholefoods { background: #00674b; color: #fff; font-size: 1rem; line-height: 1; }
 
 /* ---- Result actions ---- */
 .result-actions {

@@ -50,25 +50,7 @@ function incrementUsage() {
   setUsage(u);
 }
 
-// ---- Affiliate links ----
-const AFFILIATE = {
-  // TODO: replace tag values with your real affiliate IDs
-  walmart:    ing => `https://www.walmart.com/search?q=${encodeURIComponent(ing)}&affilsrc=api`,
-  instacart:  ing => `https://www.instacart.com/products/search_v3?q=${encodeURIComponent(ing)}`,
-  amazon:     ing => `https://www.amazon.com/s?k=${encodeURIComponent(ing + ' fresh')}&rh=p_n_feature_browse-bin%3A7656764011`,
-  target:     ing => `https://www.target.com/s?searchTerm=${encodeURIComponent(ing)}&category=grocery`,
-  kroger:     ing => `https://www.kroger.com/search?query=${encodeURIComponent(ing)}&searchType=products`,
-  wholefoods: ing => `https://www.wholefoodsmarket.com/search?text=${encodeURIComponent(ing)}`,
-};
 
-function updateAffiliateLinks(ingredient) {
-  document.getElementById('affiliateWalmart').href    = AFFILIATE.walmart(ingredient);
-  document.getElementById('affiliateInstacart').href  = AFFILIATE.instacart(ingredient);
-  document.getElementById('affiliateAmazon').href     = AFFILIATE.amazon(ingredient);
-  document.getElementById('affiliateTarget').href     = AFFILIATE.target(ingredient);
-  document.getElementById('affiliateKroger').href     = AFFILIATE.kroger(ingredient);
-  document.getElementById('affiliateWholeFoods').href = AFFILIATE.wholefoods(ingredient);
-}
 
 // ---- Usage pill ----
 function renderUsagePill() {
@@ -206,7 +188,6 @@ async function generateRecipe() {
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
   currentRecipe = recipe;
   renderRecipe(recipe);
-  updateAffiliateLinks(ingredient);
 
   btn.disabled = false;
   text.classList.remove('hidden');

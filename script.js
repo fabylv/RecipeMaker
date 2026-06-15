@@ -15,24 +15,42 @@ async function fetchFoodPhoto(ingredient) {
     );
     const data = await res.json();
     if (data.photos && data.photos.length) {
-      // Pick a random one from the top 5 for variety
       const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
-      return { url: photo.src.large, credit: photo.photographer };
+      // Use medium src — good quality, much smaller than large
+      return { url: photo.src.medium, credit: photo.photographer };
     }
   } catch {}
   return null;
 }
 
-async function photoToBase64(url) {
-  try {
-    const res  = await fetch(url);
-    const blob = await res.blob();
-    return new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  } catch { return null; }
+// Pre-load an image and return a Promise that resolves when loaded
+function preloadImage(url) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload  = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
+
+// Convert a loaded image URL to base64 via canvas
+function imgToBase64(url) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      } catch { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
 }
 
 // ==============================
@@ -220,14 +238,14 @@ async function generateRecipe() {
 
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
 
-  // Fetch photo in parallel — show shimmer while loading
+  // Fetch photo — show shimmer while loading
   document.getElementById('resultPhotoShimmer').style.display = 'block';
   document.getElementById('resultPhoto').style.display = 'none';
   const photo = await fetchFoodPhoto(ingredient);
   if (photo) {
     recipe.photoUrl    = photo.url;
     recipe.photoCredit = photo.credit;
-    recipe.photoBase64 = await photoToBase64(photo.url);
+    // Don't store base64 in recipe — convert fresh at PDF export time
   }
 
   currentRecipe = recipe;
@@ -478,7 +496,7 @@ function deleteSaved(i) {
 // ==============================
 // PDF EXPORT
 // ==============================
-function exportPDF() {
+async function exportPDF() {
   const plan = getPlan();
   if (plan === 'free') {
     openPaywall();
@@ -492,6 +510,21 @@ function exportPDF() {
     return;
   }
 
+  // Show loading state on button
+  const btn = document.querySelector('.btn-export-pdf');
+  const originalHTML = btn.innerHTML;
+  btn.innerHTML = '⏳ Preparing PDF…';
+  btn.disabled = true;
+
+  // Convert all photos to base64 now (fresh, avoids localStorage size issues)
+  const base64Map = {};
+  await Promise.all(saved.map(async (r, i) => {
+    if (r.photoUrl) {
+      const b64 = await imgToBase64(r.photoUrl);
+      if (b64) base64Map[i] = b64;
+    }
+  }));
+
   const now = new Date();
   document.getElementById('printDate').textContent =
     now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -499,7 +532,7 @@ function exportPDF() {
   const container = document.getElementById('printRecipes');
   container.innerHTML = saved.map((r, i) => `
     <div class="print-recipe${i > 0 ? ' print-page-break' : ''}">
-      ${r.photoBase64 ? `<div class="print-photo-wrap"><img class="print-photo" src="${r.photoBase64}" alt="${r.name}" />${r.photoCredit ? `<p class="print-photo-credit">Photo: ${r.photoCredit} via Pexels</p>` : ''}</div>` : ''}
+      ${base64Map[i] ? `<div class="print-photo-wrap"><img class="print-photo" src="${base64Map[i]}" alt="${r.name}" />${r.photoCredit ? `<p class="print-photo-credit">Photo: ${r.photoCredit} via Pexels</p>` : ''}</div>` : ''}
       <div class="print-recipe-header">
         <span class="print-recipe-num">${String(i + 1).padStart(2, '0')}</span>
         <h2 class="print-recipe-name">${r.name}</h2>
@@ -519,6 +552,10 @@ function exportPDF() {
       <p class="print-recipe-footer">Recipe ${i + 1} of ${saved.length} — Created with Recipe Generator ✨</p>
     </div>
   `).join('');
+
+  // Restore button then print
+  btn.innerHTML = originalHTML;
+  btn.disabled = false;
 
   window.print();
 }

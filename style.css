@@ -231,11 +231,11 @@ body {
   font-size: .72rem;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #4a7c5c;
+  color: #7c4daa;
   text-transform: uppercase;
   margin-bottom: .7rem;
   padding-bottom: .4rem;
-  border-bottom: 1.5px solid #c8dfd2;
+  border-bottom: 1.5px solid #ddd0f0;
 }
 
 .pills {

@@ -7,7 +7,7 @@
 // ==============================
 const PLANS = {
   free: { label: 'Free',  limit: 5  },
-  pro:  { label: 'Pro',   limit: 30 },
+  pro:  { label: 'Pro',   limit: 10 },
   chef: { label: 'Chef',  limit: Infinity },
 };
 

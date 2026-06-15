@@ -424,6 +424,9 @@ function saveRecipe() {
   setSaved(saved);
   updateSavedCount();
   toast('Recipe saved! 💾');
+  // If the saved panel is already open, refresh it live
+  const section = document.getElementById('savedSection');
+  if (!section.classList.contains('hidden')) renderSaved();
 }
 
 function shareRecipe() {

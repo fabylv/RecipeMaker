@@ -418,6 +418,98 @@ body {
   line-height: 1.55;
 }
 
+/* ---- Nutrition facts ---- */
+.nutrition-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.nutrition-locked {
+  cursor: pointer;
+  border-style: dashed;
+}
+
+.nutrition-locked:hover { border-color: var(--text-dark); }
+
+.nutrition-title {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-mid);
+  margin-bottom: .75rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.nutrition-est {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-light);
+  font-size: .68rem;
+}
+
+.nutrition-stats {
+  display: flex;
+  gap: 0;
+  justify-content: space-between;
+}
+
+.nutrition-blur {
+  filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.nutr-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .2rem;
+  flex: 1;
+  border-right: 1px solid var(--border);
+  padding: 0 .5rem;
+}
+
+.nutr-stat:last-child { border-right: none; }
+
+.nutr-val {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1;
+}
+
+.nutr-label {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+
+.nutrition-lock-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--text-dark);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: .4rem 1rem;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  letter-spacing: .3px;
+}
+
 /* ---- Result actions ---- */
 .result-actions {
   display: flex;

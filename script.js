@@ -54,6 +54,88 @@ function imgToBase64(url) {
 }
 
 // ==============================
+// NUTRITION ESTIMATOR
+// ==============================
+const NUTRITION_DB = {
+  // [calories, protein(g), carbs(g), fat(g), fiber(g)] per 100g
+  // Proteins
+  chicken:   [165, 31, 0,   3.6, 0],
+  beef:      [250, 26, 0,   17,  0],
+  pork:      [242, 27, 0,   14,  0],
+  salmon:    [208, 20, 0,   13,  0],
+  tuna:      [130, 29, 0,   1,   0],
+  shrimp:    [99,  24, 0.2, 0.3, 0],
+  fish:      [136, 24, 0,   5,   0],
+  egg:       [155, 13, 1,   11,  0],
+  eggs:      [155, 13, 1,   11,  0],
+  tofu:      [76,  8,  2,   4,   0.3],
+  tempeh:    [193, 19, 9,   11,  0],
+  turkey:    [189, 29, 0,   7,   0],
+  lamb:      [294, 25, 0,   21,  0],
+  // Vegetables
+  broccoli:  [34,  2.8, 7,  0.4, 2.6],
+  spinach:   [23,  2.9, 3.6, 0.4, 2.2],
+  zucchini:  [17,  1.2, 3.1, 0.3, 1],
+  carrot:    [41,  0.9, 10,  0.2, 2.8],
+  potato:    [77,  2,   17,  0.1, 2.2],
+  tomato:    [18,  0.9, 3.9, 0.2, 1.2],
+  onion:     [40,  1.1, 9.3, 0.1, 1.7],
+  garlic:    [149, 6.4, 33,  0.5, 2.1],
+  mushroom:  [22,  3.1, 3.3, 0.3, 1],
+  eggplant:  [25,  1,   6,   0.2, 3],
+  pepper:    [31,  1,   6,   0.3, 2.1],
+  asparagus: [20,  2.2, 3.9, 0.1, 2.1],
+  // Legumes
+  lentil:    [116, 9,   20,  0.4, 7.9],
+  lentils:   [116, 9,   20,  0.4, 7.9],
+  chickpea:  [164, 8.9, 27,  2.6, 7.6],
+  chickpeas: [164, 8.9, 27,  2.6, 7.6],
+  beans:     [127, 8.7, 22,  0.5, 6.4],
+  // Grains
+  rice:      [130, 2.7, 28,  0.3, 0.4],
+  pasta:     [158, 5.8, 31,  0.9, 1.8],
+  quinoa:    [120, 4.4, 21,  1.9, 2.8],
+  oats:      [389, 17,  66,  7,   10.6],
+  bread:     [265, 9,   49,  3.2, 2.7],
+  // Dairy
+  cheese:    [402, 25,  1.3, 33,  0],
+  milk:      [61,  3.2, 4.8, 3.3, 0],
+  yogurt:    [59,  10,  3.6, 0.4, 0],
+  // Fruit
+  lemon:     [29,  1.1, 9,   0.3, 2.8],
+  banana:    [89,  1.1, 23,  0.3, 2.6],
+  apple:     [52,  0.3, 14,  0.2, 2.4],
+  avocado:   [160, 2,   9,   15,  6.7],
+};
+
+const METHOD_CALORIE_ADD = {
+  'Fried':       200, 'Air Fried': 60, 'Sautéed': 80,
+  'Baked':       30,  'Roasted':   40, 'Grilled':  20,
+  'Steamed':     0,   'Raw / No-Cook': 0, 'Slow Cooked': 20,
+  'Instant Pot': 10,
+};
+
+function estimateNutrition(rawIngredient, method, dietary, serves) {
+  const key = rawIngredient.toLowerCase().split(' ')[0].replace(/s$/, '');
+  const base = NUTRITION_DB[key] || NUTRITION_DB[key + 's'] || [200, 15, 15, 8, 2];
+  const servings = parseInt(serves) || 2;
+  // Assume ~300g per serving of the main ingredient
+  const gramsPerServing = 300 / servings;
+  const factor = gramsPerServing / 100;
+  const extra  = (METHOD_CALORIE_ADD[method] || 25);
+
+  let [cal, prot, carb, fat, fib] = base.map(v => Math.round(v * factor));
+  cal += extra;
+
+  // Dietary adjustments
+  if (dietary === 'Keto')     { carb = Math.max(2, Math.round(carb * 0.3)); fat = Math.round(fat * 1.5); }
+  if (dietary === 'Low-Carb') { carb = Math.max(4, Math.round(carb * 0.5)); }
+  if (dietary === 'Vegan' || dietary === 'Vegetarian') { prot = Math.max(prot, 8); }
+
+  return { cal, prot, carb, fat, fib };
+}
+
+// ==============================
 // PLAN CONFIG — easy to adjust
 // ==============================
 const PLANS = {
@@ -302,6 +384,37 @@ function renderRecipe(r) {
   document.getElementById('resultMeta').innerHTML =
     `<span>⏱ ${r.time}</span><span>🍽 Serves ${r.serves}</span><span>📊 ${r.difficulty}</span>`;
 
+  // Nutrition facts
+  const plan    = getPlan();
+  const nutrEl  = document.getElementById('nutritionSection');
+  const n       = r.nutrition;
+  if (plan === 'chef') {
+    nutrEl.innerHTML = `
+      <div class="nutrition-box">
+        <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated</span></p>
+        <div class="nutrition-stats">
+          <div class="nutr-stat"><span class="nutr-val">${n.cal}</span><span class="nutr-label">kcal</span></div>
+          <div class="nutr-stat"><span class="nutr-val">${n.prot}g</span><span class="nutr-label">Protein</span></div>
+          <div class="nutr-stat"><span class="nutr-val">${n.carb}g</span><span class="nutr-label">Carbs</span></div>
+          <div class="nutr-stat"><span class="nutr-val">${n.fat}g</span><span class="nutr-label">Fat</span></div>
+          <div class="nutr-stat"><span class="nutr-val">${n.fib}g</span><span class="nutr-label">Fiber</span></div>
+        </div>
+      </div>`;
+  } else {
+    nutrEl.innerHTML = `
+      <div class="nutrition-box nutrition-locked" onclick="openPaywall()">
+        <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated</span></p>
+        <div class="nutrition-stats nutrition-blur">
+          <div class="nutr-stat"><span class="nutr-val">???</span><span class="nutr-label">kcal</span></div>
+          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Protein</span></div>
+          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Carbs</span></div>
+          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Fat</span></div>
+          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Fiber</span></div>
+        </div>
+        <div class="nutrition-lock-badge">🔒 Chef Plan — Tap to unlock</div>
+      </div>`;
+  }
+
   const el = document.getElementById('result');
   el.classList.remove('hidden');
   setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
@@ -317,11 +430,12 @@ function buildRecipe(ingredient, cuisine, dietary, meal, method) {
   const ml   = meal   || pick(['Lunch','Dinner','Snack']);
   const meth = method || pick(['Baked','Grilled','Sautéed','Roasted']);
   const t    = getTemplate(ing, cui, diet, ml, meth);
+  const nutrition = estimateNutrition(ingredient, meth, diet, t.serves);
   return {
     name: t.name, cuisine, dietary, meal, method,
     ingredients: t.ingredients, steps: t.steps,
     time: t.time, serves: t.serves, difficulty: t.difficulty,
-    rawIngredient: ingredient,
+    rawIngredient: ingredient, nutrition,
   };
 }
 

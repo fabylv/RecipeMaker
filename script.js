@@ -673,8 +673,8 @@ function updateAnotherBtn() {
   const btn = document.getElementById('anotherBtn');
   if (!btn) return;
   btn.innerHTML = lastIngredient
-    ? `&#128260; Another <em>${capitalize(lastIngredient)}</em> recipe`
-    : '&#128260; Another';
+    ? `🔄 Another <em>${capitalize(lastIngredient)}</em> recipe`
+    : '🔄 Another';
 }
 
 // ==============================

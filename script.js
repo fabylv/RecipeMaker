@@ -180,6 +180,9 @@ async function generateRecipe() {
   incrementUsage();
   renderUsagePill();
 
+  // Clear the input after generating
+  document.getElementById('ingredient').value = '';
+
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
   currentRecipe = recipe;
   renderRecipe(recipe);

@@ -114,20 +114,20 @@ function renderUsagePill() {
   if (plan === 'chef') {
     pill.className = 'usage-pill pro';
     pill.innerHTML = `<span class="usage-dot"></span> Chef Plan — Unlimited`;
-    if (upgradeBtn) upgradeBtn.style.display = 'none';
+    if (upgradeBtn) { upgradeBtn.textContent = 'Manage Plan'; upgradeBtn.style.display = 'inline-flex'; }
     return;
   }
 
   if (plan === 'pro') {
     pill.className = 'usage-pill pro';
     pill.innerHTML = `<span class="usage-dot"></span> Pro Plan — Unlimited`;
-    if (upgradeBtn) upgradeBtn.style.display = 'none';
+    if (upgradeBtn) { upgradeBtn.textContent = 'Manage Plan'; upgradeBtn.style.display = 'inline-flex'; }
     return;
   }
 
   pill.className = left <= 1 ? 'usage-pill warn' : 'usage-pill';
   pill.innerHTML = `<span class="usage-dot"></span> ${left} of ${limit} free recipes today`;
-  if (upgradeBtn) upgradeBtn.style.display = 'inline-flex';
+  if (upgradeBtn) { upgradeBtn.textContent = 'View Plans ↗'; upgradeBtn.style.display = 'inline-flex'; }
 }
 
 // ==============================

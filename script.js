@@ -2,14 +2,7 @@
    Recipe Maker — script.js
    =========================== */
 
-// ==============================
-// AI IMAGE — Pollinations.ai (free, no key)
-// ==============================
-async function fetchFoodPhoto(recipeName, ingredient) {
-  const prompt = `${recipeName}, ${ingredient}, beautifully plated dish, food photography, natural lighting, restaurant quality`;
-  const url    = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=500&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
-  return { url, credit: null };
-}
+// Images removed — no external dependency
 
 // Convert image URL to base64 via fetch + FileReader (avoids canvas CORS issues)
 async function imgToBase64(url) {
@@ -292,14 +285,7 @@ async function generateRecipe() {
 
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
 
-  // Fetch photo — show shimmer while loading
-  document.getElementById('resultPhotoShimmer').style.display = 'block';
-  document.getElementById('resultPhoto').style.display = 'none';
-  const photo = await fetchFoodPhoto(recipe.name, ingredient);
-  if (photo) {
-    recipe.photoUrl    = photo.url;
-    recipe.photoCredit = photo.credit;
-  }
+
 
   currentRecipe = recipe;
   renderRecipe(recipe);
@@ -318,21 +304,6 @@ async function generateRecipe() {
 // RENDER RECIPE
 // ==============================
 function renderRecipe(r) {
-  // Photo
-  const shimmer  = document.getElementById('resultPhotoShimmer');
-  const photoEl  = document.getElementById('resultPhoto');
-  const wrapEl   = document.getElementById('resultPhotoWrap');
-  if (r.photoUrl) {
-    photoEl.src              = r.photoUrl;
-    photoEl.alt              = r.name;
-    photoEl.style.display    = 'block';
-    shimmer.style.display    = 'none';
-    wrapEl.style.display     = 'block';
-  } else {
-    wrapEl.style.display     = 'none';
-    shimmer.style.display    = 'none';
-  }
-
   document.getElementById('recipeName').textContent = r.name;
 
   const badges = document.getElementById('resultBadges');
@@ -590,12 +561,7 @@ async function exportPDF() {
 
   // Convert all photos to base64 now (fresh, avoids localStorage size issues)
   const base64Map = {};
-  await Promise.all(saved.map(async (r, i) => {
-    if (r.photoUrl) {
-      const b64 = await imgToBase64(r.photoUrl);
-      if (b64) base64Map[i] = b64;
-    }
-  }));
+  // No images to load
 
   const now = new Date();
   document.getElementById('printDate').textContent =
@@ -604,7 +570,7 @@ async function exportPDF() {
   const container = document.getElementById('printRecipes');
   container.innerHTML = saved.map((r, i) => `
     <div class="print-recipe${i > 0 ? ' print-page-break' : ''}">
-      ${base64Map[i] ? `<div class="print-photo-wrap"><img class="print-photo" src="${base64Map[i]}" alt="${r.name}" />${r.photoCredit ? `<p class="print-photo-credit">Photo: ${r.photoCredit} via Pexels</p>` : ''}</div>` : ''}
+
       <div class="print-recipe-header">
         <span class="print-recipe-num">${String(i + 1).padStart(2, '0')}</span>
         <h2 class="print-recipe-name">${r.name}</h2>

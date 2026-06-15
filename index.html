@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recipe Generator</title>
+  <title>PantrySpark — Recipe Maker</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#1a1a1a" />
+  <meta name="theme-color" content="#4F3B2B" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,22 +16,30 @@
 
   <div class="page">
 
+    <!-- App Header -->
+    <nav class="topbar" aria-label="App navigation">
+      <div class="brand-mark">PS</div>
+      <div class="brand-copy">
+        <strong>PantrySpark</strong>
+        <span>Simple recipe ideas</span>
+      </div>
+      <button class="btn-upgrade-inline topbar-plan" id="upgradeBtn" onclick="openPaywall()">View Plans &#8599;</button>
+    </nav>
+
     <!-- Hero Header -->
-    <header class="hero">
+    <header class="hero app-card hero-card">
       <p class="eyebrow">RECIPE GENERATOR</p>
       <h1 class="headline">
-        One ingredient,<br>
-        <em>endless possibilities.</em>
+        What can I make<br>
+        <em>with this?</em>
       </h1>
-      <p class="subhead">Type anything in your kitchen — then set the style.</p>
+      <p class="subhead">Type one ingredient from your kitchen and get a simple recipe idea in seconds.</p>
 
-      <!-- Usage pill + upgrade -->
+      <!-- Usage pill -->
       <div class="usage-row">
         <div class="usage-pill" id="usagePill"></div>
-        <button class="btn-upgrade-inline" id="upgradeBtn" onclick="openPaywall()">View Plans &#8599;</button>
       </div>
     </header>
-
     <main>
 
       <!-- Search bar -->
@@ -40,18 +48,28 @@
           type="text"
           id="ingredient"
           class="search-input"
-          placeholder="e.g. chicken thighs, lemon, chickpeas…"
+          placeholder="What ingredient do you have?"
           autocomplete="off"
         />
         <button class="btn-generate" id="generateBtn" onclick="generateRecipe()">
-          <span id="btnText">Generate Recipes</span>
+          <span id="btnText">Generate Recipe</span>
           <span id="btnLoader" class="loader hidden"></span>
         </button>
       </div>
 
+      <div class="quick-start" aria-label="Quick ingredient ideas">
+        <span>Try:</span>
+        <button type="button" onclick="setIngredient('eggs')">🥚 Eggs</button>
+        <button type="button" onclick="setIngredient('chicken')">🍗 Chicken</button>
+        <button type="button" onclick="setIngredient('potatoes')">🥔 Potatoes</button>
+        <button type="button" onclick="setIngredient('pasta')">🍝 Pasta</button>
+        <button type="button" onclick="setIngredient('avocado')">🥑 Avocado</button>
+        <button type="button" onclick="setIngredient('lemon')">🍋 Lemon</button>
+      </div>
+
       <!-- Filters -->
       <div class="filters-panel">
-        <p class="filters-label">COOKING STYLE — PICK ANY COMBINATION</p>
+        <p class="filters-label">CHOOSE A STYLE</p>
         <div class="filters-grid">
 
           <div class="filter-group">
@@ -109,6 +127,10 @@
 
       <!-- Result -->
       <section id="result" class="result-card hidden">
+		  <div class="result-close">
+    <button class="btn-icon" onclick="closeRecipe()">✕</button>
+  </div>
+
         <div class="result-header">
           <h2 id="recipeName"></h2>
           <div class="result-badges" id="resultBadges"></div>
@@ -153,7 +175,7 @@
     </main>
 
     <footer>
-      <p>&#10024; Enter an ingredient, pick a style, and generate recipes.</p>
+      <p>Made for quick “what can I make?” moments ✨</p>
     </footer>
 
   </div>
@@ -184,8 +206,8 @@
 
       <div class="modal-hero">
         <p class="modal-eyebrow" id="paywallEyebrow">CHOOSE YOUR PLAN</p>
-        <h2 class="modal-title">More recipes.<br><em>More possibilities.</em></h2>
-        <p class="modal-sub">Upgrade to unlock unlimited recipes, PDF export, and more.</p>
+        <h2 class="modal-title">Cook more.<br><em>Save more.</em></h2>
+        <p class="modal-sub">Upgrade for unlimited recipe ideas, unlimited saves, and PDF export.</p>
       </div>
 
       <div class="plans plans--two">

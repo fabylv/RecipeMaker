@@ -1,11 +1,11 @@
 {
-  "name": "Recipe Maker",
-  "short_name": "Recipes",
-  "description": "One ingredient. Endless recipe possibilities.",
+  "name": "PantrySpark Recipe Maker",
+  "short_name": "PantrySpark",
+  "description": "Turn one ingredient into simple recipe ideas.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fdf8f0",
-  "theme_color": "#2d6a4f",
+  "background_color": "#F7F1E8",
+  "theme_color": "#4F3B2B",
   "orientation": "portrait",
   "icons": [
     {

@@ -3,23 +3,23 @@
    =========================== */
 
 :root {
-  --bg:               #FFF8EE;
-  --bg-panel:         #ffffff;
-  --bg-input:         #ffffff;
-  --text-dark:        #4A3A32;
-  --text-mid:         #6a5448;
-  --text-light:       #a08878;
-  --accent:           #C66A3D;
-  --btn-dark:         #4A3A32;
-  --btn-dark-hover:   #33281e;
-  --pill-bg:          #ffffff;
-  --pill-border:      #ddd0c4;
-  --pill-active-bg:   #4A3A32;
-  --pill-active-color:#ffffff;
-  --border:           #e8d8c8;
-  --gold:             #F4D35E;
-  --sage:             #8DAA91;
-  --shadow:           0 2px 16px rgba(74,58,50,0.08);
+  --bg:               #FAF7F2;
+  --bg-panel:         #FFFFFF;
+  --bg-input:         #FFFFFF;
+  --text-dark:        #2F3A33;
+  --text-mid:         #4a5a4d;
+  --text-light:       #8a9e8d;
+  --accent:           #D97B4A;
+  --btn-dark:         #7BAE7F;
+  --btn-dark-hover:   #5E8D63;
+  --pill-bg:          #FFFFFF;
+  --pill-border:      #d4e0d5;
+  --pill-active-bg:   #2F3A33;
+  --pill-active-color:#FFFFFF;
+  --border:           #e2ebe3;
+  --gold:             #D97B4A;
+  --sage:             #7BAE7F;
+  --shadow:           0 2px 16px rgba(47,58,51,0.08);
   --radius:           14px;
   --radius-pill:      999px;
   --font-serif:       'Playfair Display', Georgia, serif;
@@ -122,7 +122,7 @@ body {
   font-size: .75rem;
   font-weight: 600;
   letter-spacing: .3px;
-  background: rgba(74,58,50,.07);
+  background: rgba(47,58,51,.07);
   color: var(--text-mid);
   cursor: default;
   height: 30px;
@@ -134,8 +134,8 @@ body {
 }
 
 .usage-pill.pro {
-  background: #edf4ee;
-  color: #8DAA91;
+  background: #eef6ef;
+  color: #7BAE7F;
 }
 
 .usage-dot {
@@ -170,7 +170,7 @@ body {
 .search-input:focus {
   outline: none;
   border-color: var(--text-dark);
-  box-shadow: 0 0 0 3px rgba(74,58,50,.10);
+  box-shadow: 0 0 0 3px rgba(47,58,51,.10);
 }
 
 .btn-generate {
@@ -193,7 +193,7 @@ body {
 
 .btn-generate:hover  { background: var(--btn-dark-hover); }
 .btn-generate:active { transform: scale(.97); }
-.btn-generate:disabled { background: #c0a898; cursor: not-allowed; }
+.btn-generate:disabled { background: #a0c0a4; cursor: not-allowed; }
 
 /* ---- Filters panel ---- */
 .filters-panel {
@@ -231,14 +231,14 @@ body {
   background: var(--bg);
   border-radius: var(--radius-sm, 10px);
   padding: 1rem 1rem .85rem;
-  border-left: 3px solid #8DAA91;
+  border-left: 3px solid #7BAE7F;
 }
 
 .group-label {
   font-size: .72rem;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #8DAA91;
+  color: #7BAE7F;
   text-transform: uppercase;
   margin-bottom: .75rem;
 }
@@ -320,7 +320,7 @@ body {
 }
 
 .badge {
-  background: #FFF8EE;
+  background: #FAF7F2;
   color: var(--text-mid);
   border-radius: var(--radius-pill);
   padding: .22rem .75rem;
@@ -631,7 +631,7 @@ body {
   z-index: 100;
 }
 
-.btn-saved-toggle:hover  { background: #33281e; }
+.btn-saved-toggle:hover  { background: #5E8D63; }
 .btn-saved-toggle:active { transform: scale(.96); }
 
 /* ---- Toast ---- */
@@ -902,7 +902,7 @@ footer {
   letter-spacing: .2px;
 }
 
-.btn-export-pdf:hover { background: #33281e; }
+.btn-export-pdf:hover { background: #5E8D63; }
 
 .pdf-pro-badge {
   background: var(--accent);
@@ -940,7 +940,7 @@ footer {
     justify-content: center;
     text-align: center;
     page-break-after: always;
-    border-bottom: 3px solid #4A3A32;
+    border-bottom: 3px solid #2F3A33;
   }
 
   .print-eyebrow {
@@ -948,7 +948,7 @@ footer {
     font-size: 9pt;
     font-weight: 700;
     letter-spacing: 3px;
-    color: #a08878;
+    color: #8a9e8d;
     text-transform: uppercase;
     margin-bottom: 1.5rem;
   }
@@ -958,26 +958,26 @@ footer {
     font-size: 52pt;
     font-weight: 700;
     line-height: 1.1;
-    color: #4A3A32;
+    color: #2F3A33;
     margin-bottom: 1rem;
   }
 
   .print-title em {
     font-style: italic;
-    color: #C66A3D;
+    color: #D97B4A;
   }
 
   .print-date {
     font-family: 'Inter', sans-serif;
     font-size: 12pt;
-    color: #a08878;
+    color: #8a9e8d;
     margin-bottom: .5rem;
   }
 
   .print-tagline {
     font-family: 'Inter', sans-serif;
     font-size: 10pt;
-    color: #b09080;
+    color: #9ab89d;
   }
 
   /* ---- Recipe pages ---- */
@@ -988,7 +988,7 @@ footer {
   }
 
   .print-recipe-header {
-    border-bottom: 2px solid #4A3A32;
+    border-bottom: 2px solid #2F3A33;
     padding-bottom: .75rem;
     margin-bottom: 1.25rem;
   }
@@ -998,7 +998,7 @@ footer {
     font-size: 9pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #C66A3D;
+    color: #D97B4A;
   }
 
   .print-recipe-name {
@@ -1006,14 +1006,14 @@ footer {
     font-size: 26pt;
     font-weight: 700;
     line-height: 1.2;
-    color: #4A3A32;
+    color: #2F3A33;
     margin: .2rem 0 .4rem;
   }
 
   .print-recipe-meta {
     font-family: 'Inter', sans-serif;
     font-size: 9pt;
-    color: #a08878;
+    color: #8a9e8d;
     margin-bottom: .4rem;
   }
 
@@ -1027,8 +1027,8 @@ footer {
     font-family: 'Inter', sans-serif;
     font-size: 8pt;
     font-weight: 600;
-    background: #FFF8EE;
-    color: #6a5448;
+    background: #FAF7F2;
+    color: #4a5a4d;
     padding: 2pt 7pt;
     border-radius: 50pt;
   }
@@ -1045,7 +1045,7 @@ footer {
     font-size: 8pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #b09080;
+    color: #9ab89d;
     text-transform: uppercase;
     margin-bottom: .6rem;
     padding-bottom: .3rem;
@@ -1073,7 +1073,7 @@ footer {
     content: '—';
     position: absolute;
     left: 0;
-    color: #c8b8a8;
+    color: #c0d4c2;
   }
 
   .print-col ol {
@@ -1102,7 +1102,7 @@ footer {
     font-size: 7pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #b09080;
+    color: #9ab89d;
     text-transform: uppercase;
     margin-bottom: .4rem;
   }
@@ -1115,17 +1115,17 @@ footer {
   .print-nutr-row span {
     font-family: 'Inter', sans-serif;
     font-size: 9pt;
-    color: #6a5448;
+    color: #4a5a4d;
   }
 
   .print-nutr-row strong {
-    color: #4A3A32;
+    color: #2F3A33;
   }
 
   .print-recipe-footer {
     font-family: 'Inter', sans-serif;
     font-size: 8pt;
-    color: #b09080;
+    color: #9ab89d;
     text-align: center;
     border-top: 1px solid #e0d9cc;
     padding-top: .5rem;

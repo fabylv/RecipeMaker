@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
 </head>
 <body>
 
@@ -28,7 +28,7 @@
       <!-- Usage pill + upgrade -->
       <div class="usage-row">
         <div class="usage-pill" id="usagePill"></div>
-        <button class="btn-upgrade-inline" id="upgradeBtn" onclick="openPaywall()">View Plans ↗</button>
+        <button class="btn-upgrade-inline" id="upgradeBtn" onclick="openPaywall()">View Plans &#8599;</button>
       </div>
     </header>
 
@@ -142,12 +142,12 @@
       <section id="savedSection" class="saved-card hidden">
         <div class="saved-header">
           <h3>Saved Recipes</h3>
-          <button class="btn-icon" onclick="toggleSaved()">✕</button>
+          <button class="btn-icon" onclick="toggleSaved()">&#10005;</button>
         </div>
         <div id="savedList"></div>
         <div class="saved-footer">
           <button class="btn-export-pdf" onclick="exportPDF()">
-            📄 Export My Recipe Book
+            &#128196; Export My Recipe Book
             <span class="pdf-pro-badge">PRO</span>
           </button>
         </div>
@@ -156,7 +156,7 @@
     </main>
 
     <footer>
-      <p>✨ Enter an ingredient, pick a style, and generate recipes.</p>
+      <p>&#10024; Enter an ingredient, pick a style, and generate recipes.</p>
     </footer>
 
   </div>
@@ -175,7 +175,7 @@
       <p class="print-eyebrow">RECIPE GENERATOR</p>
       <h1 class="print-title">My Recipe<br><em>Book</em></h1>
       <p class="print-date" id="printDate"></p>
-      <p class="print-tagline">✨ One ingredient. Endless possibilities.</p>
+      <p class="print-tagline">&#10024; One ingredient. Endless possibilities.</p>
     </div>
     <div id="printRecipes"></div>
   </div>
@@ -183,7 +183,7 @@
   <!-- ===================== PAYWALL MODAL ===================== -->
   <div class="modal-overlay hidden" id="paywallModal">
     <div class="modal">
-      <button class="modal-close" onclick="closePaywall()">✕</button>
+      <button class="modal-close" onclick="closePaywall()">&#10005;</button>
 
       <div class="modal-hero">
         <p class="modal-eyebrow" id="paywallEyebrow">CHOOSE YOUR PLAN</p>
@@ -201,10 +201,10 @@
           </div>
           <p class="plan-price">$0<span>/mo</span></p>
           <ul class="plan-features">
-            <li>✓ 5 recipes / day</li>
-            <li>✓ Nutrition facts</li>
-            <li>✓ All cuisines & filters</li>
-            <li>✓ Save up to 5 recipes</li>
+            <li>&#10003; 5 recipes / day</li>
+            <li>&#10003; Nutrition facts</li>
+            <li>&#10003; All cuisines &amp; filters</li>
+            <li>&#10003; Save up to 5 recipes</li>
           </ul>
         </div>
 
@@ -212,19 +212,19 @@
         <div class="plan plan--pro">
           <div class="plan-top">
             <span class="plan-name">Premium</span>
-            <span class="plan-badge">✨ Everything</span>
+            <span class="plan-badge">&#10024; Everything</span>
           </div>
           <p class="plan-price">$10<span>/mo</span></p>
           <ul class="plan-features">
-            <li>✓ Unlimited recipes / day</li>
-            <li>✓ Unlimited saves</li>
-            <li>✓ 📄 Export Recipe Book PDF</li>
-            <li>✓ Nutrition facts</li>
-            <li>✓ Meal plans</li>
-            <li>✓ All cuisines & filters</li>
-            <li>✓ Early access & new features</li>
+            <li>&#10003; Unlimited recipes / day</li>
+            <li>&#10003; Unlimited saves</li>
+            <li>&#10003; &#128196; Export Recipe Book PDF</li>
+            <li>&#10003; Nutrition facts</li>
+            <li>&#10003; Meal plans</li>
+            <li>&#10003; All cuisines &amp; filters</li>
+            <li>&#10003; Early access &amp; new features</li>
           </ul>
-          <button class="btn-plan btn-plan--pro" onclick="upgradePlan('premium')">Get Premium →</button>
+          <button class="btn-plan btn-plan--pro" onclick="upgradePlan('premium')">Get Premium &rarr;</button>
         </div>
 
       </div>

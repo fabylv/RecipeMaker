@@ -3,24 +3,17 @@
    =========================== */
 
 // ==============================
-// PEXELS CONFIG
+// AI IMAGE (Pollinations.ai — free, no API key)
 // ==============================
-const PEXELS_KEY = 'nsSezipjcQW1a1H09l4bjipOKq3y3sBXscUHzwnJr1gqxU6Rnq2My30U';
+function buildPhotoUrl(recipeName, ingredient) {
+  const prompt = `${recipeName}, ${ingredient}, plated dish, food photography, delicious, restaurant quality, natural lighting`;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=500&nologo=true&seed=${Date.now()}`;
+}
 
-async function fetchFoodPhoto(ingredient) {
-  try {
-    const res = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent('cooked ' + ingredient + ' dish plate meal food photography')}&per_page=5&orientation=landscape`,
-      { headers: { Authorization: PEXELS_KEY } }
-    );
-    const data = await res.json();
-    if (data.photos && data.photos.length) {
-      const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
-      // Use medium src — good quality, much smaller than large
-      return { url: photo.src.medium, credit: photo.photographer };
-    }
-  } catch {}
-  return null;
+async function fetchFoodPhoto(recipeName, ingredient) {
+  // Pollinations returns a URL directly — no API call needed
+  const url = buildPhotoUrl(recipeName, ingredient);
+  return { url, credit: 'AI Generated' };
 }
 
 // Convert image URL to base64 via fetch + FileReader (avoids canvas CORS issues)
@@ -307,11 +300,10 @@ async function generateRecipe() {
   // Fetch photo — show shimmer while loading
   document.getElementById('resultPhotoShimmer').style.display = 'block';
   document.getElementById('resultPhoto').style.display = 'none';
-  const photo = await fetchFoodPhoto(ingredient);
+  const photo = await fetchFoodPhoto(recipe.name, ingredient);
   if (photo) {
     recipe.photoUrl    = photo.url;
     recipe.photoCredit = photo.credit;
-    // Don't store base64 in recipe — convert fresh at PDF export time
   }
 
   currentRecipe = recipe;
@@ -634,6 +626,17 @@ async function exportPDF() {
           <ol>${r.steps.map(s => `<li>${s}</li>`).join('')}</ol>
         </div>
       </div>
+      ${r.nutrition ? `
+      <div class="print-nutrition">
+        <h3>NUTRITION PER SERVING (ESTIMATED)</h3>
+        <div class="print-nutr-row">
+          <span><strong>${r.nutrition.cal}</strong> kcal</span>
+          <span><strong>${r.nutrition.prot}g</strong> Protein</span>
+          <span><strong>${r.nutrition.carb}g</strong> Carbs</span>
+          <span><strong>${r.nutrition.fat}g</strong> Fat</span>
+          <span><strong>${r.nutrition.fib}g</strong> Fiber</span>
+        </div>
+      </div>` : ''}
       <p class="print-recipe-footer">Recipe ${i + 1} of ${saved.length} — Created with Recipe Generator ✨</p>
     </div>
   `).join('');

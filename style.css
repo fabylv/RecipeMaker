@@ -1132,6 +1132,38 @@ footer {
     line-height: 1.5;
   }
 
+  .print-nutrition {
+    border-top: 1px solid #e0d9cc;
+    padding-top: .6rem;
+    margin-top: .75rem;
+    margin-bottom: .5rem;
+  }
+
+  .print-nutrition h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #aaa;
+    text-transform: uppercase;
+    margin-bottom: .4rem;
+  }
+
+  .print-nutr-row {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .print-nutr-row span {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    color: #555;
+  }
+
+  .print-nutr-row strong {
+    color: #1a1a1a;
+  }
+
   .print-recipe-footer {
     font-family: 'Inter', sans-serif;
     font-size: 8pt;

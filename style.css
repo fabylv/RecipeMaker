@@ -225,7 +225,12 @@ body {
   .plans             { grid-template-columns: 1fr; }
 }
 
-.filter-group {}
+.filter-group {
+  background: var(--bg);
+  border-radius: var(--radius-sm, 10px);
+  padding: 1rem 1rem .85rem;
+  border-left: 3px solid #7c4daa;
+}
 
 .group-label {
   font-size: .72rem;
@@ -233,9 +238,7 @@ body {
   letter-spacing: 2px;
   color: #7c4daa;
   text-transform: uppercase;
-  margin-bottom: .7rem;
-  padding-bottom: .4rem;
-  border-bottom: 1.5px solid #ddd0f0;
+  margin-bottom: .75rem;
 }
 
 .pills {

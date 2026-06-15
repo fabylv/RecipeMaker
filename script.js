@@ -275,7 +275,8 @@ function toast(msg) {
 // ==============================
 // CURRENT RECIPE STATE
 // ==============================
-let currentRecipe = null;
+let currentRecipe   = null;
+let lastIngredient  = '';
 
 // ==============================
 // GENERATE
@@ -311,8 +312,10 @@ async function generateRecipe() {
   incrementUsage();
   renderUsagePill();
 
-  // Clear the input after generating
+  // Store ingredient and clear input
+  lastIngredient = ingredient;
   document.getElementById('ingredient').value = '';
+  updateAnotherBtn();
 
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
 
@@ -655,6 +658,23 @@ async function exportPDF() {
   btn.disabled = false;
 
   window.print();
+}
+
+
+// ==============================
+// ANOTHER RECIPE
+// ==============================
+function generateAnother() {
+  if (lastIngredient) document.getElementById('ingredient').value = lastIngredient;
+  generateRecipe();
+}
+
+function updateAnotherBtn() {
+  const btn = document.getElementById('anotherBtn');
+  if (!btn) return;
+  btn.innerHTML = lastIngredient
+    ? `&#128260; Another <em>${capitalize(lastIngredient)}</em> recipe`
+    : '&#128260; Another';
 }
 
 // ==============================

@@ -669,6 +669,14 @@ function generateAnother() {
   generateRecipe();
 }
 
+function newSearch() {
+  document.getElementById('ingredient').value = '';
+  document.getElementById('ingredient').focus();
+  document.getElementById('ingredient').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Deselect all pills
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+}
+
 function updateAnotherBtn() {
   const btn = document.getElementById('anotherBtn');
   if (!btn) return;

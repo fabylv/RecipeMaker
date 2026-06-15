@@ -6,7 +6,7 @@
 // PLAN CONFIG — easy to adjust
 // ==============================
 const PLANS = {
-  free: { label: 'Free',  limit: 5  },
+  free: { label: 'Free',  limit: 3  },
   pro:  { label: 'Pro',   limit: 10 },
   chef: { label: 'Chef',  limit: Infinity },
 };

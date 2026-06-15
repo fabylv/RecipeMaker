@@ -228,12 +228,14 @@ body {
 .filter-group {}
 
 .group-label {
-  font-size: .65rem;
+  font-size: .72rem;
   font-weight: 700;
-  letter-spacing: 1.8px;
-  color: var(--text-mid);
+  letter-spacing: 2px;
+  color: var(--text-dark);
   text-transform: uppercase;
-  margin-bottom: .65rem;
+  margin-bottom: .7rem;
+  padding-bottom: .4rem;
+  border-bottom: 1.5px solid var(--border);
 }
 
 .pills {

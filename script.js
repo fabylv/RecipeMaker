@@ -183,17 +183,27 @@ document.getElementById('paywallModal').addEventListener('click', function (e) {
 // ==============================
 // PILL TOGGLES
 // ==============================
+// Dietary = multi-select; all others = single-select
+const MULTI_SELECT_GROUPS = ['dietary'];
+
 document.querySelectorAll('.pill').forEach((pill) => {
     pill.addEventListener('click', () => {
         const group = pill.dataset.group;
-        document
-            .querySelectorAll(`.pill[data-group="${group}"]`)
-            .forEach((p) => p.classList.remove('active'));
-        pill.classList.toggle('active');
+        if (MULTI_SELECT_GROUPS.includes(group)) {
+            pill.classList.toggle('active');
+        } else {
+            document.querySelectorAll(`.pill[data-group="${group}"]`)
+                    .forEach((p) => p.classList.remove('active'));
+            pill.classList.toggle('active');
+        }
     });
 });
 
 function getActive(group) {
+    if (MULTI_SELECT_GROUPS.includes(group)) {
+        return [...document.querySelectorAll(`.pill[data-group="${group}"].active`)]
+            .map(p => p.dataset.value).join(', ');
+    }
     const el = document.querySelector(`.pill[data-group="${group}"].active`);
     return el ? el.dataset.value : '';
 }

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Maker ✨</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2d6a4f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+</head>
+<body>
+
+  <header>
+    <div class="logo">🥘 Recipe Maker</div>
+    <p class="tagline">One ingredient. Endless possibilities.</p>
+  </header>
+
+  <main>
+    <section class="input-section card">
+
+      <div class="field">
+        <label for="ingredient">Main Ingredient</label>
+        <input type="text" id="ingredient" placeholder="e.g. chicken, lentils, zucchini…" autocomplete="off" />
+      </div>
+
+      <div class="filters-grid">
+
+        <div class="field">
+          <label for="cuisine">Cuisine</label>
+          <select id="cuisine">
+            <option value="">Any</option>
+            <option>Italian</option>
+            <option>Mexican</option>
+            <option>Asian</option>
+            <option>Mediterranean</option>
+            <option>Indian</option>
+            <option>American</option>
+            <option>French</option>
+            <option>Middle Eastern</option>
+            <option>Japanese</option>
+            <option>Thai</option>
+            <option>Greek</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="dietary">Dietary</label>
+          <select id="dietary">
+            <option value="">Any</option>
+            <option>Vegan</option>
+            <option>Vegetarian</option>
+            <option>Gluten-Free</option>
+            <option>Dairy-Free</option>
+            <option>Keto</option>
+            <option>Paleo</option>
+            <option>Low-Carb</option>
+            <option>Nut-Free</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="meal">Meal Type</label>
+          <select id="meal">
+            <option value="">Any</option>
+            <option>Breakfast</option>
+            <option>Lunch</option>
+            <option>Dinner</option>
+            <option>Snack</option>
+            <option>Appetizer</option>
+            <option>Dessert</option>
+            <option>Soup</option>
+            <option>Salad</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="method">Cooking Method</label>
+          <select id="method">
+            <option value="">Any</option>
+            <option>Baked</option>
+            <option>Grilled</option>
+            <option>Fried</option>
+            <option>Steamed</option>
+            <option>Roasted</option>
+            <option>Slow Cooked</option>
+            <option>Raw / No-Cook</option>
+            <option>Sautéed</option>
+            <option>Air Fried</option>
+            <option>Instant Pot</option>
+          </select>
+        </div>
+
+      </div>
+
+      <button id="generateBtn" class="btn-generate" onclick="generateRecipe()">
+        <span id="btnText">✨ Generate Recipe</span>
+        <span id="btnLoader" class="loader hidden"></span>
+      </button>
+
+    </section>
+
+    <!-- Result -->
+    <section id="result" class="card result-card hidden">
+      <div class="result-header">
+        <h2 id="recipeName"></h2>
+        <div class="result-badges" id="resultBadges"></div>
+      </div>
+      <div class="result-body">
+        <div class="result-col">
+          <h3>🛒 Ingredients</h3>
+          <ul id="ingredientsList"></ul>
+        </div>
+        <div class="result-col">
+          <h3>👩‍🍳 Instructions</h3>
+          <ol id="instructionsList"></ol>
+        </div>
+      </div>
+      <div class="result-meta" id="resultMeta"></div>
+      <div class="result-actions">
+        <button class="btn-secondary" onclick="saveRecipe()">💾 Save</button>
+        <button class="btn-secondary" onclick="generateRecipe()">🔄 Another</button>
+        <button class="btn-secondary" onclick="shareRecipe()">📤 Share</button>
+      </div>
+    </section>
+
+    <!-- Saved Recipes -->
+    <section id="savedSection" class="card saved-card hidden">
+      <div class="saved-header">
+        <h3>📚 Saved Recipes</h3>
+        <button class="btn-icon" onclick="toggleSaved()" title="Close">✕</button>
+      </div>
+      <div id="savedList"></div>
+    </section>
+
+    <button class="btn-saved-toggle" onclick="toggleSaved()" id="savedToggleBtn" title="View saved recipes">
+      📚 <span id="savedCount">0</span>
+    </button>
+
+  </main>
+
+  <footer>
+    <p>✨ Powered by imagination (and a little AI magic)</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -3,6 +3,39 @@
    =========================== */
 
 // ==============================
+// PEXELS CONFIG
+// ==============================
+const PEXELS_KEY = 'nsSezipjcQW1a1H09l4bjipOKq3y3sBXscUHzwnJr1gqxU6Rnq2My30U';
+
+async function fetchFoodPhoto(ingredient) {
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(ingredient + ' food')}&per_page=5&orientation=landscape`,
+      { headers: { Authorization: PEXELS_KEY } }
+    );
+    const data = await res.json();
+    if (data.photos && data.photos.length) {
+      // Pick a random one from the top 5 for variety
+      const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
+      return { url: photo.src.large, credit: photo.photographer };
+    }
+  } catch {}
+  return null;
+}
+
+async function photoToBase64(url) {
+  try {
+    const res  = await fetch(url);
+    const blob = await res.blob();
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch { return null; }
+}
+
+// ==============================
 // PLAN CONFIG — easy to adjust
 // ==============================
 const PLANS = {
@@ -186,6 +219,17 @@ async function generateRecipe() {
   document.getElementById('ingredient').value = '';
 
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
+
+  // Fetch photo in parallel — show shimmer while loading
+  document.getElementById('resultPhotoShimmer').style.display = 'block';
+  document.getElementById('resultPhoto').style.display = 'none';
+  const photo = await fetchFoodPhoto(ingredient);
+  if (photo) {
+    recipe.photoUrl    = photo.url;
+    recipe.photoCredit = photo.credit;
+    recipe.photoBase64 = await photoToBase64(photo.url);
+  }
+
   currentRecipe = recipe;
   renderRecipe(recipe);
 
@@ -203,6 +247,21 @@ async function generateRecipe() {
 // RENDER RECIPE
 // ==============================
 function renderRecipe(r) {
+  // Photo
+  const shimmer  = document.getElementById('resultPhotoShimmer');
+  const photoEl  = document.getElementById('resultPhoto');
+  const wrapEl   = document.getElementById('resultPhotoWrap');
+  if (r.photoUrl) {
+    photoEl.src              = r.photoUrl;
+    photoEl.alt              = r.name;
+    photoEl.style.display    = 'block';
+    shimmer.style.display    = 'none';
+    wrapEl.style.display     = 'block';
+  } else {
+    wrapEl.style.display     = 'none';
+    shimmer.style.display    = 'none';
+  }
+
   document.getElementById('recipeName').textContent = r.name;
 
   const badges = document.getElementById('resultBadges');
@@ -440,6 +499,7 @@ function exportPDF() {
   const container = document.getElementById('printRecipes');
   container.innerHTML = saved.map((r, i) => `
     <div class="print-recipe${i > 0 ? ' print-page-break' : ''}">
+      ${r.photoBase64 ? `<div class="print-photo-wrap"><img class="print-photo" src="${r.photoBase64}" alt="${r.name}" />${r.photoCredit ? `<p class="print-photo-credit">Photo: ${r.photoCredit} via Pexels</p>` : ''}</div>` : ''}
       <div class="print-recipe-header">
         <span class="print-recipe-num">${String(i + 1).padStart(2, '0')}</span>
         <h2 class="print-recipe-name">${r.name}</h2>

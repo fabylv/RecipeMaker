@@ -312,11 +312,18 @@ button { -webkit-tap-highlight-color: transparent; }
   margin-top: .5rem;
 }
 .result-meta span {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  gap: .3rem;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: .4rem .65rem;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  line-height: 1;
 }
 .result-body { display: grid; grid-template-columns: .9fr 1.1fr; gap: 1.4rem; margin-bottom: 1rem; }
 .result-col h3 { color: var(--accent); font-size: .66rem; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; margin-bottom: .7rem; }

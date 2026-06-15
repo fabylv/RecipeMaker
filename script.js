@@ -139,9 +139,8 @@ function estimateNutrition(rawIngredient, method, dietary, serves) {
 // PLAN CONFIG — easy to adjust
 // ==============================
 const PLANS = {
-  free: { label: 'Free',  limit: 5,        period: 'day'  },
-  pro:  { label: 'Pro',   limit: Infinity,  period: 'day'  },
-  chef: { label: 'Chef',  limit: Infinity,  period: 'day'  },
+  free:    { label: 'Free',    limit: 5,       period: 'day' },
+  premium: { label: 'Premium', limit: Infinity, period: 'day' },
 };
 
 const USAGE_KEY  = 'rm_usage';   // { month: 'YYYY-MM', count: N }
@@ -193,16 +192,9 @@ function renderUsagePill() {
   const limit = getLimit();
   const left  = recipesLeft();
 
-  if (plan === 'chef') {
+  if (plan === 'premium') {
     pill.className = 'usage-pill pro';
-    pill.innerHTML = `<span class="usage-dot"></span> Chef Plan — Unlimited`;
-    if (upgradeBtn) { upgradeBtn.textContent = 'Manage Plan'; upgradeBtn.style.display = 'inline-flex'; }
-    return;
-  }
-
-  if (plan === 'pro') {
-    pill.className = 'usage-pill pro';
-    pill.innerHTML = `<span class="usage-dot"></span> Pro Plan — Unlimited`;
+    pill.innerHTML = `<span class="usage-dot"></span> Premium — Unlimited`;
     if (upgradeBtn) { upgradeBtn.textContent = 'Manage Plan'; upgradeBtn.style.display = 'inline-flex'; }
     return;
   }
@@ -343,7 +335,7 @@ async function generateRecipe() {
 
   // Nudge on last free recipe
   if (getPlan() === 'free' && recipesLeft() === 0) {
-    setTimeout(() => toast("That was your last free recipe today! Upgrade to keep going 🍽"), 1500);
+    setTimeout(() => toast("That was your last free recipe today! Upgrade to Premium to keep going 🍽"), 1500);
   }
 }
 
@@ -601,7 +593,7 @@ function deleteSaved(i) {
 // ==============================
 // PDF EXPORT
 // ==============================
-async function exportPDF() {
+async async function exportPDF() {
   const plan = getPlan();
   if (plan === 'free') {
     openPaywall();

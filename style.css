@@ -778,6 +778,13 @@ footer {
   margin-bottom: 1.25rem;
 }
 
+.plans--two {
+  grid-template-columns: 1fr 1fr;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .plan {
   border: 1.5px solid var(--border);
   border-radius: var(--radius);

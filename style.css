@@ -3,21 +3,23 @@
    =========================== */
 
 :root {
-  --bg:               #f2ede4;
+  --bg:               #F3E9D7;
   --bg-panel:         #ffffff;
   --bg-input:         #ffffff;
-  --text-dark:        #1a1a1a;
-  --text-mid:         #555;
-  --text-light:       #999;
-  --accent:           #c0522a;
-  --btn-dark:         #1a1a1a;
-  --btn-dark-hover:   #333;
+  --text-dark:        #3F4A2C;
+  --text-mid:         #5a5a3a;
+  --text-light:       #9a9070;
+  --accent:           #D94F3D;
+  --btn-dark:         #3F4A2C;
+  --btn-dark-hover:   #2a3320;
   --pill-bg:          #ffffff;
-  --pill-border:      #d8d2c8;
-  --pill-active-bg:   #1a1a1a;
+  --pill-border:      #d8cebc;
+  --pill-active-bg:   #3F4A2C;
   --pill-active-color:#ffffff;
-  --border:           #e0d9cc;
-  --shadow:           0 2px 16px rgba(0,0,0,0.06);
+  --border:           #e0d4bc;
+  --gold:             #E6B450;
+  --olive:            #6B7D3A;
+  --shadow:           0 2px 16px rgba(63,74,44,0.08);
   --radius:           14px;
   --radius-pill:      999px;
   --font-serif:       'Playfair Display', Georgia, serif;
@@ -120,7 +122,7 @@ body {
   font-size: .75rem;
   font-weight: 600;
   letter-spacing: .3px;
-  background: rgba(26,26,26,.06);
+  background: rgba(63,74,44,.07);
   color: var(--text-mid);
   cursor: default;
   height: 30px;
@@ -132,8 +134,8 @@ body {
 }
 
 .usage-pill.pro {
-  background: #eef7f0;
-  color: #2d7a50;
+  background: #eef5e0;
+  color: #6B7D3A;
 }
 
 .usage-dot {
@@ -168,7 +170,7 @@ body {
 .search-input:focus {
   outline: none;
   border-color: var(--text-dark);
-  box-shadow: 0 0 0 3px rgba(26,26,26,.08);
+  box-shadow: 0 0 0 3px rgba(63,74,44,.10);
 }
 
 .btn-generate {
@@ -191,7 +193,7 @@ body {
 
 .btn-generate:hover  { background: var(--btn-dark-hover); }
 .btn-generate:active { transform: scale(.97); }
-.btn-generate:disabled { background: #aaa; cursor: not-allowed; }
+.btn-generate:disabled { background: #b0a890; cursor: not-allowed; }
 
 /* ---- Filters panel ---- */
 .filters-panel {
@@ -229,14 +231,14 @@ body {
   background: var(--bg);
   border-radius: var(--radius-sm, 10px);
   padding: 1rem 1rem .85rem;
-  border-left: 3px solid #7c4daa;
+  border-left: 3px solid #6B7D3A;
 }
 
 .group-label {
   font-size: .72rem;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #7c4daa;
+  color: #6B7D3A;
   text-transform: uppercase;
   margin-bottom: .75rem;
 }
@@ -267,8 +269,9 @@ body {
 
 .pill.active {
   background: var(--pill-active-bg);
-  border-color: var(--pill-active-bg);
+  border-color: var(--gold);
   color: var(--pill-active-color);
+  box-shadow: 0 0 0 1px var(--gold);
 }
 
 /* ---- Loader ---- */
@@ -317,7 +320,7 @@ body {
 }
 
 .badge {
-  background: #f0ece4;
+  background: #F3E9D7;
   color: var(--text-mid);
   border-radius: var(--radius-pill);
   padding: .22rem .75rem;
@@ -628,7 +631,7 @@ body {
   z-index: 100;
 }
 
-.btn-saved-toggle:hover  { background: #333; }
+.btn-saved-toggle:hover  { background: #2a3320; }
 .btn-saved-toggle:active { transform: scale(.96); }
 
 /* ---- Toast ---- */
@@ -899,7 +902,7 @@ footer {
   letter-spacing: .2px;
 }
 
-.btn-export-pdf:hover { background: #333; }
+.btn-export-pdf:hover { background: #2a3320; }
 
 .pdf-pro-badge {
   background: var(--accent);
@@ -937,7 +940,7 @@ footer {
     justify-content: center;
     text-align: center;
     page-break-after: always;
-    border-bottom: 3px solid #1a1a1a;
+    border-bottom: 3px solid #3F4A2C;
   }
 
   .print-eyebrow {
@@ -945,7 +948,7 @@ footer {
     font-size: 9pt;
     font-weight: 700;
     letter-spacing: 3px;
-    color: #999;
+    color: #9a9070;
     text-transform: uppercase;
     margin-bottom: 1.5rem;
   }
@@ -955,26 +958,26 @@ footer {
     font-size: 52pt;
     font-weight: 700;
     line-height: 1.1;
-    color: #1a1a1a;
+    color: #3F4A2C;
     margin-bottom: 1rem;
   }
 
   .print-title em {
     font-style: italic;
-    color: #c0522a;
+    color: #D94F3D;
   }
 
   .print-date {
     font-family: 'Inter', sans-serif;
     font-size: 12pt;
-    color: #888;
+    color: #9a9070;
     margin-bottom: .5rem;
   }
 
   .print-tagline {
     font-family: 'Inter', sans-serif;
     font-size: 10pt;
-    color: #aaa;
+    color: #b0a070;
   }
 
   /* ---- Recipe pages ---- */
@@ -985,7 +988,7 @@ footer {
   }
 
   .print-recipe-header {
-    border-bottom: 2px solid #1a1a1a;
+    border-bottom: 2px solid #3F4A2C;
     padding-bottom: .75rem;
     margin-bottom: 1.25rem;
   }
@@ -995,7 +998,7 @@ footer {
     font-size: 9pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #c0522a;
+    color: #D94F3D;
   }
 
   .print-recipe-name {
@@ -1003,14 +1006,14 @@ footer {
     font-size: 26pt;
     font-weight: 700;
     line-height: 1.2;
-    color: #1a1a1a;
+    color: #3F4A2C;
     margin: .2rem 0 .4rem;
   }
 
   .print-recipe-meta {
     font-family: 'Inter', sans-serif;
     font-size: 9pt;
-    color: #888;
+    color: #9a9070;
     margin-bottom: .4rem;
   }
 
@@ -1024,8 +1027,8 @@ footer {
     font-family: 'Inter', sans-serif;
     font-size: 8pt;
     font-weight: 600;
-    background: #f0ece4;
-    color: #555;
+    background: #F3E9D7;
+    color: #5a5a3a;
     padding: 2pt 7pt;
     border-radius: 50pt;
   }
@@ -1042,7 +1045,7 @@ footer {
     font-size: 8pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #aaa;
+    color: #b0a070;
     text-transform: uppercase;
     margin-bottom: .6rem;
     padding-bottom: .3rem;
@@ -1070,7 +1073,7 @@ footer {
     content: '—';
     position: absolute;
     left: 0;
-    color: #ccc;
+    color: #c8bc9a;
   }
 
   .print-col ol {
@@ -1099,7 +1102,7 @@ footer {
     font-size: 7pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #aaa;
+    color: #b0a070;
     text-transform: uppercase;
     margin-bottom: .4rem;
   }
@@ -1112,17 +1115,17 @@ footer {
   .print-nutr-row span {
     font-family: 'Inter', sans-serif;
     font-size: 9pt;
-    color: #555;
+    color: #5a5a3a;
   }
 
   .print-nutr-row strong {
-    color: #1a1a1a;
+    color: #3F4A2C;
   }
 
   .print-recipe-footer {
     font-family: 'Inter', sans-serif;
     font-size: 8pt;
-    color: #bbb;
+    color: #b0a070;
     text-align: center;
     border-top: 1px solid #e0d9cc;
     padding-top: .5rem;

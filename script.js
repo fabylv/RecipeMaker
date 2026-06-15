@@ -6,9 +6,9 @@
 // PLAN CONFIG — easy to adjust
 // ==============================
 const PLANS = {
-  free: { label: 'Free',  limit: 3  },
-  pro:  { label: 'Pro',   limit: 10 },
-  chef: { label: 'Chef',  limit: Infinity },
+  free: { label: 'Free',  limit: 5,        period: 'day'  },
+  pro:  { label: 'Pro',   limit: Infinity,  period: 'day'  },
+  chef: { label: 'Chef',  limit: Infinity,  period: 'day'  },
 };
 
 const USAGE_KEY  = 'rm_usage';   // { month: 'YYYY-MM', count: N }
@@ -18,20 +18,20 @@ const SAVED_KEY  = 'rm_saved';
 // ==============================
 // USAGE / PLAN HELPERS
 // ==============================
-function currentMonth() {
+function currentDay() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function getUsage() {
   try {
     const u = JSON.parse(localStorage.getItem(USAGE_KEY));
-    if (u && u.month === currentMonth()) return u;
+    if (u && u.day === currentDay()) return u;
   } catch {}
-  return { month: currentMonth(), count: 0 };
+  return { day: currentDay(), count: 0 };
 }
 
-function setUsage(u) { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); }
+function setUsage(u)  { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); }
 
 function getPlan()   { return localStorage.getItem(PLAN_KEY) || 'free'; }
 function setPlan(p)  { localStorage.setItem(PLAN_KEY, p); }
@@ -50,6 +50,20 @@ function incrementUsage() {
   setUsage(u);
 }
 
+// ---- Affiliate links ----
+const AFFILIATE = {
+  // TODO: replace tag values with your real affiliate IDs
+  walmart:   ing => `https://www.walmart.com/search?q=${encodeURIComponent(ing)}&affilsrc=api`,
+  instacart: ing => `https://www.instacart.com/products/search_v3?q=${encodeURIComponent(ing)}`,
+  amazon:    ing => `https://www.amazon.com/s?k=${encodeURIComponent(ing + ' fresh')}&rh=p_n_feature_browse-bin%3A7656764011`,
+};
+
+function updateAffiliateLinks(ingredient) {
+  document.getElementById('affiliateWalmart').href   = AFFILIATE.walmart(ingredient);
+  document.getElementById('affiliateInstacart').href = AFFILIATE.instacart(ingredient);
+  document.getElementById('affiliateAmazon').href    = AFFILIATE.amazon(ingredient);
+}
+
 // ---- Usage pill ----
 function renderUsagePill() {
   const pill  = document.getElementById('usagePill');
@@ -57,20 +71,20 @@ function renderUsagePill() {
   const limit = getLimit();
   const left  = recipesLeft();
 
-  if (limit === Infinity) {
+  if (plan === 'chef') {
     pill.className = 'usage-pill pro';
-    pill.innerHTML = `<span class="usage-dot"></span> Chef Plan — Unlimited recipes`;
+    pill.innerHTML = `<span class="usage-dot"></span> Chef Plan — Unlimited`;
     return;
   }
 
-  if (plan !== 'free') {
+  if (plan === 'pro') {
     pill.className = 'usage-pill pro';
-    pill.innerHTML = `<span class="usage-dot"></span> ${PLANS[plan].label} Plan — ${left} of ${limit} recipes left this month`;
+    pill.innerHTML = `<span class="usage-dot"></span> Pro Plan — Unlimited`;
     return;
   }
 
   pill.className = left <= 1 ? 'usage-pill warn' : 'usage-pill';
-  pill.innerHTML = `<span class="usage-dot"></span> ${left} of ${limit} free recipes left this month`;
+  pill.innerHTML = `<span class="usage-dot"></span> ${left} of ${limit} free recipes today`;
 }
 
 // ==============================
@@ -186,6 +200,7 @@ async function generateRecipe() {
   const recipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
   currentRecipe = recipe;
   renderRecipe(recipe);
+  updateAffiliateLinks(ingredient);
 
   btn.disabled = false;
   text.classList.remove('hidden');
@@ -193,7 +208,7 @@ async function generateRecipe() {
 
   // Nudge on last free recipe
   if (getPlan() === 'free' && recipesLeft() === 0) {
-    setTimeout(() => toast("That was your last free recipe this month! Upgrade to keep going 🍽"), 1500);
+    setTimeout(() => toast("That was your last free recipe today! Upgrade to keep going 🍽"), 1500);
   }
 }
 

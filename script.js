@@ -10,7 +10,7 @@ const PEXELS_KEY = 'nsSezipjcQW1a1H09l4bjipOKq3y3sBXscUHzwnJr1gqxU6Rnq2My30U';
 async function fetchFoodPhoto(ingredient) {
   try {
     const res = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(ingredient + ' food')}&per_page=5&orientation=landscape`,
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent('cooked ' + ingredient + ' dish plate meal food photography')}&per_page=5&orientation=landscape`,
       { headers: { Authorization: PEXELS_KEY } }
     );
     const data = await res.json();

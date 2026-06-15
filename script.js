@@ -593,7 +593,7 @@ function deleteSaved(i) {
 // ==============================
 // PDF EXPORT
 // ==============================
-async async function exportPDF() {
+async function exportPDF() {
   const plan = getPlan();
   if (plan === 'free') {
     openPaywall();

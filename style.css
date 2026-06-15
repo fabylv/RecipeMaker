@@ -3,23 +3,23 @@
    =========================== */
 
 :root {
-  --bg:               #F3E9D7;
+  --bg:               #FFF8EE;
   --bg-panel:         #ffffff;
   --bg-input:         #ffffff;
-  --text-dark:        #3F4A2C;
-  --text-mid:         #5a5a3a;
-  --text-light:       #9a9070;
-  --accent:           #D94F3D;
-  --btn-dark:         #3F4A2C;
-  --btn-dark-hover:   #2a3320;
+  --text-dark:        #4A3A32;
+  --text-mid:         #6a5448;
+  --text-light:       #a08878;
+  --accent:           #C66A3D;
+  --btn-dark:         #4A3A32;
+  --btn-dark-hover:   #33281e;
   --pill-bg:          #ffffff;
-  --pill-border:      #d8cebc;
-  --pill-active-bg:   #3F4A2C;
+  --pill-border:      #ddd0c4;
+  --pill-active-bg:   #4A3A32;
   --pill-active-color:#ffffff;
-  --border:           #e0d4bc;
-  --gold:             #E6B450;
-  --olive:            #6B7D3A;
-  --shadow:           0 2px 16px rgba(63,74,44,0.08);
+  --border:           #e8d8c8;
+  --gold:             #F4D35E;
+  --sage:             #8DAA91;
+  --shadow:           0 2px 16px rgba(74,58,50,0.08);
   --radius:           14px;
   --radius-pill:      999px;
   --font-serif:       'Playfair Display', Georgia, serif;
@@ -122,7 +122,7 @@ body {
   font-size: .75rem;
   font-weight: 600;
   letter-spacing: .3px;
-  background: rgba(63,74,44,.07);
+  background: rgba(74,58,50,.07);
   color: var(--text-mid);
   cursor: default;
   height: 30px;
@@ -134,8 +134,8 @@ body {
 }
 
 .usage-pill.pro {
-  background: #eef5e0;
-  color: #6B7D3A;
+  background: #edf4ee;
+  color: #8DAA91;
 }
 
 .usage-dot {
@@ -170,7 +170,7 @@ body {
 .search-input:focus {
   outline: none;
   border-color: var(--text-dark);
-  box-shadow: 0 0 0 3px rgba(63,74,44,.10);
+  box-shadow: 0 0 0 3px rgba(74,58,50,.10);
 }
 
 .btn-generate {
@@ -193,7 +193,7 @@ body {
 
 .btn-generate:hover  { background: var(--btn-dark-hover); }
 .btn-generate:active { transform: scale(.97); }
-.btn-generate:disabled { background: #b0a890; cursor: not-allowed; }
+.btn-generate:disabled { background: #c0a898; cursor: not-allowed; }
 
 /* ---- Filters panel ---- */
 .filters-panel {
@@ -231,14 +231,14 @@ body {
   background: var(--bg);
   border-radius: var(--radius-sm, 10px);
   padding: 1rem 1rem .85rem;
-  border-left: 3px solid #6B7D3A;
+  border-left: 3px solid #8DAA91;
 }
 
 .group-label {
   font-size: .72rem;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #6B7D3A;
+  color: #8DAA91;
   text-transform: uppercase;
   margin-bottom: .75rem;
 }
@@ -320,7 +320,7 @@ body {
 }
 
 .badge {
-  background: #F3E9D7;
+  background: #FFF8EE;
   color: var(--text-mid);
   border-radius: var(--radius-pill);
   padding: .22rem .75rem;
@@ -631,7 +631,7 @@ body {
   z-index: 100;
 }
 
-.btn-saved-toggle:hover  { background: #2a3320; }
+.btn-saved-toggle:hover  { background: #33281e; }
 .btn-saved-toggle:active { transform: scale(.96); }
 
 /* ---- Toast ---- */
@@ -902,7 +902,7 @@ footer {
   letter-spacing: .2px;
 }
 
-.btn-export-pdf:hover { background: #2a3320; }
+.btn-export-pdf:hover { background: #33281e; }
 
 .pdf-pro-badge {
   background: var(--accent);
@@ -940,7 +940,7 @@ footer {
     justify-content: center;
     text-align: center;
     page-break-after: always;
-    border-bottom: 3px solid #3F4A2C;
+    border-bottom: 3px solid #4A3A32;
   }
 
   .print-eyebrow {
@@ -948,7 +948,7 @@ footer {
     font-size: 9pt;
     font-weight: 700;
     letter-spacing: 3px;
-    color: #9a9070;
+    color: #a08878;
     text-transform: uppercase;
     margin-bottom: 1.5rem;
   }
@@ -958,26 +958,26 @@ footer {
     font-size: 52pt;
     font-weight: 700;
     line-height: 1.1;
-    color: #3F4A2C;
+    color: #4A3A32;
     margin-bottom: 1rem;
   }
 
   .print-title em {
     font-style: italic;
-    color: #D94F3D;
+    color: #C66A3D;
   }
 
   .print-date {
     font-family: 'Inter', sans-serif;
     font-size: 12pt;
-    color: #9a9070;
+    color: #a08878;
     margin-bottom: .5rem;
   }
 
   .print-tagline {
     font-family: 'Inter', sans-serif;
     font-size: 10pt;
-    color: #b0a070;
+    color: #b09080;
   }
 
   /* ---- Recipe pages ---- */
@@ -988,7 +988,7 @@ footer {
   }
 
   .print-recipe-header {
-    border-bottom: 2px solid #3F4A2C;
+    border-bottom: 2px solid #4A3A32;
     padding-bottom: .75rem;
     margin-bottom: 1.25rem;
   }
@@ -998,7 +998,7 @@ footer {
     font-size: 9pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #D94F3D;
+    color: #C66A3D;
   }
 
   .print-recipe-name {
@@ -1006,14 +1006,14 @@ footer {
     font-size: 26pt;
     font-weight: 700;
     line-height: 1.2;
-    color: #3F4A2C;
+    color: #4A3A32;
     margin: .2rem 0 .4rem;
   }
 
   .print-recipe-meta {
     font-family: 'Inter', sans-serif;
     font-size: 9pt;
-    color: #9a9070;
+    color: #a08878;
     margin-bottom: .4rem;
   }
 
@@ -1027,8 +1027,8 @@ footer {
     font-family: 'Inter', sans-serif;
     font-size: 8pt;
     font-weight: 600;
-    background: #F3E9D7;
-    color: #5a5a3a;
+    background: #FFF8EE;
+    color: #6a5448;
     padding: 2pt 7pt;
     border-radius: 50pt;
   }
@@ -1045,7 +1045,7 @@ footer {
     font-size: 8pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #b0a070;
+    color: #b09080;
     text-transform: uppercase;
     margin-bottom: .6rem;
     padding-bottom: .3rem;
@@ -1073,7 +1073,7 @@ footer {
     content: '—';
     position: absolute;
     left: 0;
-    color: #c8bc9a;
+    color: #c8b8a8;
   }
 
   .print-col ol {
@@ -1102,7 +1102,7 @@ footer {
     font-size: 7pt;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #b0a070;
+    color: #b09080;
     text-transform: uppercase;
     margin-bottom: .4rem;
   }
@@ -1115,17 +1115,17 @@ footer {
   .print-nutr-row span {
     font-family: 'Inter', sans-serif;
     font-size: 9pt;
-    color: #5a5a3a;
+    color: #6a5448;
   }
 
   .print-nutr-row strong {
-    color: #3F4A2C;
+    color: #4A3A32;
   }
 
   .print-recipe-footer {
     font-family: 'Inter', sans-serif;
     font-size: 8pt;
-    color: #b0a070;
+    color: #b09080;
     text-align: center;
     border-top: 1px solid #e0d9cc;
     padding-top: .5rem;

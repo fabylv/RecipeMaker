@@ -3,24 +3,12 @@
    =========================== */
 
 // ==============================
-// PEXELS IMAGE
+// AI IMAGE — Pollinations.ai (free, no key)
 // ==============================
-const PEXELS_KEY = 'nsSezipjcQW1a1H09l4bjipOKq3y3sBXscUHzwnJr1gqxU6Rnq2My30U';
-
 async function fetchFoodPhoto(recipeName, ingredient) {
-  try {
-    const query = `cooked ${ingredient} dish plate meal food photography`;
-    const res   = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=5&orientation=landscape`,
-      { headers: { Authorization: PEXELS_KEY } }
-    );
-    const data = await res.json();
-    if (data.photos && data.photos.length) {
-      const photo = data.photos[Math.floor(Math.random() * data.photos.length)];
-      return { url: photo.src.medium, credit: photo.photographer };
-    }
-  } catch {}
-  return null;
+  const prompt = `${recipeName}, ${ingredient}, beautifully plated dish, food photography, natural lighting, restaurant quality`;
+  const url    = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=500&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
+  return { url, credit: null };
 }
 
 // Convert image URL to base64 via fetch + FileReader (avoids canvas CORS issues)
@@ -307,7 +295,7 @@ async function generateRecipe() {
   // Fetch photo — show shimmer while loading
   document.getElementById('resultPhotoShimmer').style.display = 'block';
   document.getElementById('resultPhoto').style.display = 'none';
-  const photo = await fetchFoodPhoto(recipe.name, ingredient); // recipeName unused by Pexels but kept for signature consistency
+  const photo = await fetchFoodPhoto(recipe.name, ingredient);
   if (photo) {
     recipe.photoUrl    = photo.url;
     recipe.photoCredit = photo.credit;

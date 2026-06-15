@@ -331,8 +331,16 @@ body {
   font-size: .78rem;
   color: var(--text-light);
   display: flex;
+  align-items: center;
   gap: 1.2rem;
   flex-wrap: wrap;
+}
+
+.result-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  line-height: 1;
 }
 
 .result-body {

@@ -1049,7 +1049,7 @@ footer {
     text-transform: uppercase;
     margin-bottom: .6rem;
     padding-bottom: .3rem;
-    border-bottom: 1px solid #e0d9cc;
+    border-bottom: 1px solid #e2ebe3;
   }
 
   .print-col ul {
@@ -1063,7 +1063,7 @@ footer {
   .print-col ul li {
     font-family: 'Inter', sans-serif;
     font-size: 10pt;
-    color: #444;
+    color: #4a5a4d;
     line-height: 1.4;
     padding-left: .8rem;
     position: relative;
@@ -1086,12 +1086,12 @@ footer {
   .print-col ol li {
     font-family: 'Inter', sans-serif;
     font-size: 10pt;
-    color: #444;
+    color: #4a5a4d;
     line-height: 1.5;
   }
 
   .print-nutrition {
-    border-top: 1px solid #e0d9cc;
+    border-top: 1px solid #e2ebe3;
     padding-top: .6rem;
     margin-top: .75rem;
     margin-bottom: .5rem;
@@ -1127,7 +1127,7 @@ footer {
     font-size: 8pt;
     color: #9ab89d;
     text-align: center;
-    border-top: 1px solid #e0d9cc;
+    border-top: 1px solid #e2ebe3;
     padding-top: .5rem;
     margin-top: 1rem;
   }

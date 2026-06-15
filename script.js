@@ -384,36 +384,20 @@ function renderRecipe(r) {
   document.getElementById('resultMeta').innerHTML =
     `<span>⏱ ${r.time}</span><span>🍽 Serves ${r.serves}</span><span>📊 ${r.difficulty}</span>`;
 
-  // Nutrition facts
-  const plan    = getPlan();
-  const nutrEl  = document.getElementById('nutritionSection');
-  const n       = r.nutrition;
-  if (plan === 'chef') {
-    nutrEl.innerHTML = `
-      <div class="nutrition-box">
-        <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated</span></p>
-        <div class="nutrition-stats">
-          <div class="nutr-stat"><span class="nutr-val">${n.cal}</span><span class="nutr-label">kcal</span></div>
-          <div class="nutr-stat"><span class="nutr-val">${n.prot}g</span><span class="nutr-label">Protein</span></div>
-          <div class="nutr-stat"><span class="nutr-val">${n.carb}g</span><span class="nutr-label">Carbs</span></div>
-          <div class="nutr-stat"><span class="nutr-val">${n.fat}g</span><span class="nutr-label">Fat</span></div>
-          <div class="nutr-stat"><span class="nutr-val">${n.fib}g</span><span class="nutr-label">Fiber</span></div>
-        </div>
-      </div>`;
-  } else {
-    nutrEl.innerHTML = `
-      <div class="nutrition-box nutrition-locked" onclick="openPaywall()">
-        <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated</span></p>
-        <div class="nutrition-stats nutrition-blur">
-          <div class="nutr-stat"><span class="nutr-val">???</span><span class="nutr-label">kcal</span></div>
-          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Protein</span></div>
-          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Carbs</span></div>
-          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Fat</span></div>
-          <div class="nutr-stat"><span class="nutr-val">??g</span><span class="nutr-label">Fiber</span></div>
-        </div>
-        <div class="nutrition-lock-badge">🔒 Chef Plan — Tap to unlock</div>
-      </div>`;
-  }
+  // Nutrition facts — visible to all tiers
+  const nutrEl = document.getElementById('nutritionSection');
+  const n      = r.nutrition;
+  nutrEl.innerHTML = `
+    <div class="nutrition-box">
+      <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated</span></p>
+      <div class="nutrition-stats">
+        <div class="nutr-stat"><span class="nutr-val">${n.cal}</span><span class="nutr-label">kcal</span></div>
+        <div class="nutr-stat"><span class="nutr-val">${n.prot}g</span><span class="nutr-label">Protein</span></div>
+        <div class="nutr-stat"><span class="nutr-val">${n.carb}g</span><span class="nutr-label">Carbs</span></div>
+        <div class="nutr-stat"><span class="nutr-val">${n.fat}g</span><span class="nutr-label">Fat</span></div>
+        <div class="nutr-stat"><span class="nutr-val">${n.fib}g</span><span class="nutr-label">Fiber</span></div>
+      </div>
+    </div>`;
 
   const el = document.getElementById('result');
   el.classList.remove('hidden');

@@ -25,8 +25,11 @@
       </h1>
       <p class="subhead">Type anything in your kitchen — then set the style.</p>
 
-      <!-- Usage pill -->
-      <div class="usage-pill" id="usagePill"></div>
+      <!-- Usage pill + upgrade -->
+      <div class="usage-row">
+        <div class="usage-pill" id="usagePill"></div>
+        <button class="btn-upgrade-inline" id="upgradeBtn" onclick="openPaywall()">View Plans ↗</button>
+      </div>
     </header>
 
     <main>
@@ -180,9 +183,9 @@
       <button class="modal-close" onclick="closePaywall()">✕</button>
 
       <div class="modal-hero">
-        <p class="modal-eyebrow">YOU'VE COOKED THROUGH YOUR FREE RECIPES</p>
-        <h2 class="modal-title">Keep the inspiration<br><em>going all month.</em></h2>
-        <p class="modal-sub">Upgrade to unlock more recipes and never hit a wall in the kitchen.</p>
+        <p class="modal-eyebrow" id="paywallEyebrow">CHOOSE YOUR PLAN</p>
+        <h2 class="modal-title">More recipes.<br><em>More possibilities.</em></h2>
+        <p class="modal-sub">Upgrade to unlock unlimited recipes, PDF export, and more.</p>
       </div>
 
       <div class="plans">

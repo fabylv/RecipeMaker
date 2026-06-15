@@ -77,6 +77,35 @@ body {
   margin-bottom: 1.2rem;
 }
 
+/* ---- Usage row ---- */
+.usage-row {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  margin-top: .6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-upgrade-inline {
+  background: none;
+  border: 1.5px solid var(--text-dark);
+  border-radius: var(--radius-pill);
+  padding: .3rem .85rem;
+  font-family: var(--font-ui);
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  letter-spacing: .2px;
+}
+
+.btn-upgrade-inline:hover {
+  background: var(--text-dark);
+  color: #fff;
+}
+
 /* ---- Usage pill ---- */
 .usage-pill {
   display: inline-flex;

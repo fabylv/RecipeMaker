@@ -105,7 +105,8 @@ function incrementUsage() {
 
 // ---- Usage pill ----
 function renderUsagePill() {
-  const pill  = document.getElementById('usagePill');
+  const pill       = document.getElementById('usagePill');
+  const upgradeBtn = document.getElementById('upgradeBtn');
   const plan  = getPlan();
   const limit = getLimit();
   const left  = recipesLeft();
@@ -113,17 +114,20 @@ function renderUsagePill() {
   if (plan === 'chef') {
     pill.className = 'usage-pill pro';
     pill.innerHTML = `<span class="usage-dot"></span> Chef Plan — Unlimited`;
+    if (upgradeBtn) upgradeBtn.style.display = 'none';
     return;
   }
 
   if (plan === 'pro') {
     pill.className = 'usage-pill pro';
     pill.innerHTML = `<span class="usage-dot"></span> Pro Plan — Unlimited`;
+    if (upgradeBtn) upgradeBtn.style.display = 'none';
     return;
   }
 
   pill.className = left <= 1 ? 'usage-pill warn' : 'usage-pill';
   pill.innerHTML = `<span class="usage-dot"></span> ${left} of ${limit} free recipes today`;
+  if (upgradeBtn) upgradeBtn.style.display = 'inline-flex';
 }
 
 // ==============================

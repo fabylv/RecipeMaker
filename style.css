@@ -725,3 +725,230 @@ footer {
   color: var(--text-light);
   letter-spacing: .3px;
 }
+
+/* ==============================
+   PDF EXPORT BUTTON
+   ============================== */
+.saved-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-export-pdf {
+  width: 100%;
+  padding: .8rem 1rem;
+  background: var(--text-dark);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  transition: background .2s;
+  letter-spacing: .2px;
+}
+
+.btn-export-pdf:hover { background: #333; }
+
+.pdf-pro-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: .18rem .5rem;
+  border-radius: var(--radius-pill);
+}
+
+/* ==============================
+   PRINT / PDF VIEW
+   ============================== */
+
+/* Hidden on screen */
+.print-view { display: none; }
+
+@media print {
+  @page {
+    size: letter;
+    margin: 1in 0.9in;
+  }
+
+  /* Hide everything except the print view */
+  body > *:not(#printView) { display: none !important; }
+  .print-view { display: block !important; }
+
+  /* ---- Cover page ---- */
+  .print-cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    page-break-after: always;
+    border-bottom: 3px solid #1a1a1a;
+  }
+
+  .print-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .print-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 52pt;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+  }
+
+  .print-title em {
+    font-style: italic;
+    color: #c0522a;
+  }
+
+  .print-date {
+    font-family: 'Inter', sans-serif;
+    font-size: 12pt;
+    color: #888;
+    margin-bottom: .5rem;
+  }
+
+  .print-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+    color: #aaa;
+  }
+
+  /* ---- Recipe pages ---- */
+  .print-page-break { page-break-before: always; }
+
+  .print-recipe {
+    padding-top: .5rem;
+  }
+
+  .print-recipe-header {
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: .75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .print-recipe-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #c0522a;
+  }
+
+  .print-recipe-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 26pt;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1a1a1a;
+    margin: .2rem 0 .4rem;
+  }
+
+  .print-recipe-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    color: #888;
+    margin-bottom: .4rem;
+  }
+
+  .print-recipe-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+  }
+
+  .print-tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    background: #f0ece4;
+    color: #555;
+    padding: 2pt 7pt;
+    border-radius: 50pt;
+  }
+
+  .print-recipe-body {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .print-col h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #aaa;
+    text-transform: uppercase;
+    margin-bottom: .6rem;
+    padding-bottom: .3rem;
+    border-bottom: 1px solid #e0d9cc;
+  }
+
+  .print-col ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+  }
+
+  .print-col ul li {
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+    color: #444;
+    line-height: 1.4;
+    padding-left: .8rem;
+    position: relative;
+  }
+
+  .print-col ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #ccc;
+  }
+
+  .print-col ol {
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+  }
+
+  .print-col ol li {
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  .print-recipe-footer {
+    font-family: 'Inter', sans-serif;
+    font-size: 8pt;
+    color: #bbb;
+    text-align: center;
+    border-top: 1px solid #e0d9cc;
+    padding-top: .5rem;
+    margin-top: 1rem;
+  }
+}

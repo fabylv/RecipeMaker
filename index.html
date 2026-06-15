@@ -135,6 +135,12 @@
           <button class="btn-icon" onclick="toggleSaved()">✕</button>
         </div>
         <div id="savedList"></div>
+        <div class="saved-footer">
+          <button class="btn-export-pdf" onclick="exportPDF()">
+            📄 Export My Recipe Book
+            <span class="pdf-pro-badge">PRO</span>
+          </button>
+        </div>
       </section>
 
     </main>
@@ -152,6 +158,17 @@
 
   <!-- Toast -->
   <div id="toastEl" class="toast"></div>
+
+  <!-- PDF PRINT VIEW (hidden, shown only when printing) -->
+  <div id="printView" class="print-view">
+    <div class="print-cover">
+      <p class="print-eyebrow">RECIPE GENERATOR</p>
+      <h1 class="print-title">My Recipe<br><em>Book</em></h1>
+      <p class="print-date" id="printDate"></p>
+      <p class="print-tagline">✨ One ingredient. Endless possibilities.</p>
+    </div>
+    <div id="printRecipes"></div>
+  </div>
 
   <!-- ===================== PAYWALL MODAL ===================== -->
   <div class="modal-overlay hidden" id="paywallModal">
@@ -176,7 +193,7 @@
           <ul class="plan-features">
             <li>✓ 5 recipes / day</li>
             <li>✓ All cuisines & filters</li>
-            <li>✓ Save & share</li>
+            <li>✓ Save up to 5 recipes</li>
           </ul>
         </div>
 
@@ -188,10 +205,10 @@
           </div>
           <p class="plan-price">$4.99<span>/mo</span></p>
           <ul class="plan-features">
-            <li>✓ Unlimited recipes</li>
-              <li>✓ Grocery list export</li>
+            <li>✓ Unlimited recipes / day</li>
+            <li>✓ Unlimited saves</li>
+            <li>✓ 📄 Export Recipe Book PDF</li>
             <li>✓ All cuisines & filters</li>
-            <li>✓ Save & share</li>
             <li>✓ Priority new features</li>
           </ul>
           <button class="btn-plan btn-plan--pro" onclick="upgradePlan('pro')">Get Pro →</button>
@@ -204,9 +221,9 @@
           </div>
           <p class="plan-price">$9.99<span>/mo</span></p>
           <ul class="plan-features">
-            <li>✓ Unlimited recipes</li>
-            <li>✓ All cuisines & filters</li>
-            <li>✓ Save & share</li>
+            <li>✓ Unlimited recipes / day</li>
+            <li>✓ Unlimited saves</li>
+            <li>✓ 📄 Export Recipe Book PDF</li>
             <li>✓ Meal plans</li>
             <li>✓ Nutrition facts</li>
             <li>✓ Early access & requests</li>

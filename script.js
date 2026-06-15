@@ -417,6 +417,53 @@ function deleteSaved(i) {
 }
 
 // ==============================
+// PDF EXPORT
+// ==============================
+function exportPDF() {
+  const plan = getPlan();
+  if (plan === 'free') {
+    openPaywall();
+    toast('Upgrade to Pro to export your Recipe Book! 📄');
+    return;
+  }
+
+  const saved = getSaved();
+  if (!saved.length) {
+    toast('Save some recipes first!');
+    return;
+  }
+
+  const now = new Date();
+  document.getElementById('printDate').textContent =
+    now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const container = document.getElementById('printRecipes');
+  container.innerHTML = saved.map((r, i) => `
+    <div class="print-recipe${i > 0 ? ' print-page-break' : ''}">
+      <div class="print-recipe-header">
+        <span class="print-recipe-num">${String(i + 1).padStart(2, '0')}</span>
+        <h2 class="print-recipe-name">${r.name}</h2>
+        <div class="print-recipe-meta">⏱ ${r.time} &bull; Serves ${r.serves} &bull; ${r.difficulty}</div>
+        <div class="print-recipe-tags">${[r.cuisine,r.dietary,r.meal,r.method].filter(Boolean).map(t => `<span class="print-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="print-recipe-body">
+        <div class="print-col">
+          <h3>INGREDIENTS</h3>
+          <ul>${r.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul>
+        </div>
+        <div class="print-col">
+          <h3>INSTRUCTIONS</h3>
+          <ol>${r.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+        </div>
+      </div>
+      <p class="print-recipe-footer">Recipe ${i + 1} of ${saved.length} — Created with Recipe Generator ✨</p>
+    </div>
+  `).join('');
+
+  window.print();
+}
+
+// ==============================
 // ENTER KEY
 // ==============================
 document.getElementById('ingredient').addEventListener('keydown', e => {

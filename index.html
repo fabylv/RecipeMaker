@@ -171,6 +171,9 @@
         </div>
         <div id="savedList"></div>
         <div class="saved-footer">
+          <button class="btn-shopping-list" onclick="openShoppingList()">
+            🛒 Shopping List
+          </button>
           <p class="saved-footer-hint">Save 10 recipes to create your cookbook 📖</p>
         </div>
       </section>
@@ -209,6 +212,25 @@
     </div>
     <div id="printTOC"></div>
     <div id="printRecipes"></div>
+  </div>
+
+  <!-- SHOPPING LIST MODAL -->
+  <div class="modal-overlay hidden" id="shoppingListModal">
+    <div class="modal modal--shopping">
+      <button class="modal-close" onclick="closeShoppingList()">&#10005;</button>
+      <p class="modal-eyebrow">FROM YOUR SAVED RECIPES</p>
+      <h2 class="modal-title">🛒 Shopping List</h2>
+      <p class="modal-sub" id="slSub">Check off what you already have.</p>
+      <div class="sl-actions-top">
+        <button class="sl-btn-secondary" onclick="slCheckCommonPantry()">&#10003; Mark pantry staples</button>
+        <button class="sl-btn-secondary" onclick="slClearAll()">Reset all</button>
+      </div>
+      <ul class="sl-list" id="slList"></ul>
+      <div class="sl-footer">
+        <span class="sl-count" id="slCount"></span>
+        <button class="btn-generate" style="flex:1" onclick="slCopyList()">📋 Copy Shopping List</button>
+      </div>
+    </div>
   </div>
 
   <!-- CELEBRATION MODAL -->

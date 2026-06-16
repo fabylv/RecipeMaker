@@ -1058,6 +1058,170 @@ document.getElementById('ingredient').addEventListener('keydown', (e) => {
 });
 
 // ==============================
+// SHOPPING LIST
+// ==============================
+const SL_KEY = 'rm_shopping_checked'; // Set of ingredient strings user has marked as "have it"
+
+// Common pantry staples — auto-suggested as already owned
+const PANTRY_STAPLES = [
+    'olive oil', 'salt', 'black pepper', 'garlic', 'onion', 'butter',
+    'soy sauce', 'vinegar', 'flour', 'sugar', 'water', 'broth'
+];
+
+function getCheckedItems() {
+    try { return new Set(JSON.parse(localStorage.getItem(SL_KEY)) || []); }
+    catch { return new Set(); }
+}
+function saveCheckedItems(set) {
+    localStorage.setItem(SL_KEY, JSON.stringify([...set]));
+}
+
+/**
+ * Compile all unique ingredient lines from saved recipes.
+ * Strips leading quantity/unit to get a clean key for de-duplication,
+ * but keeps the original line for display.
+ */
+function compileShoppingList() {
+    const saved = getSaved();
+    const seen = new Map(); // normalized key -> original display line
+    for (const r of saved) {
+        for (const line of (r.ingredients || [])) {
+            // Skip lines that are not real ingredients
+            if (/to taste|for (lining|grilling|frying|garnish)|parchment|foil|cooking spray/i.test(line)) continue;
+            // Normalize: strip leading quantity + unit to get food name key
+            const key = line
+                .toLowerCase()
+                .replace(/^[\d¼½¾⅓⅔][\d\s\u2013–.\-]*/, '')  // strip leading numbers/fractions
+                .replace(/^(lbs?|oz|g|kg|cup|cups|tbsp|tsp|ml|l|cloves?|slices?|pieces?|medium|large|small|fresh|dried)\s+/i, '')
+                .replace(/[,.].*$/, '')   // strip prep notes after comma
+                .trim();
+            if (key && !seen.has(key)) seen.set(key, line);
+        }
+    }
+    return [...seen.values()];
+}
+
+function openShoppingList() {
+    const saved = getSaved();
+    if (!saved.length) {
+        toast('Save some recipes first to build a shopping list!');
+        return;
+    }
+    renderShoppingList();
+    document.getElementById('shoppingListModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeShoppingList() {
+    document.getElementById('shoppingListModal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('shoppingListModal').addEventListener('click', function(e) {
+    if (e.target === this) closeShoppingList();
+});
+
+function renderShoppingList() {
+    const items = compileShoppingList();
+    const checked = getCheckedItems();
+    const list = document.getElementById('slList');
+    const sub = document.getElementById('slSub');
+    const count = document.getElementById('slCount');
+
+    sub.textContent = `From ${getSaved().length} saved recipe${getSaved().length === 1 ? '' : 's'} — check off what you already have.`;
+
+    list.innerHTML = items.map((line, i) => {
+        const isChecked = checked.has(line);
+        // Highlight pantry staples
+        const isStaple = PANTRY_STAPLES.some(s => line.toLowerCase().includes(s));
+        return `
+        <li class="sl-item${isChecked ? ' sl-item--checked' : ''}${isStaple ? ' sl-item--staple' : ''}" data-line="${encodeURIComponent(line)}">
+            <label class="sl-label">
+                <input type="checkbox" class="sl-check" ${isChecked ? 'checked' : ''}
+                    onchange="slToggleItem(this, '${encodeURIComponent(line)}')" />
+                <span class="sl-text">${line}</span>
+            </label>
+            <button class="sl-remove" onclick="slRemoveItem(this, '${encodeURIComponent(line)}')" title="Remove">&times;</button>
+        </li>`;
+    }).join('');
+
+    updateSlCount();
+}
+
+function slToggleItem(checkbox, encodedLine) {
+    const line = decodeURIComponent(encodedLine);
+    const checked = getCheckedItems();
+    if (checkbox.checked) checked.add(line);
+    else checked.delete(line);
+    saveCheckedItems(checked);
+    const li = checkbox.closest('.sl-item');
+    li.classList.toggle('sl-item--checked', checkbox.checked);
+    updateSlCount();
+}
+
+function slRemoveItem(btn, encodedLine) {
+    const line = decodeURIComponent(encodedLine);
+    // Remove from checked set too
+    const checked = getCheckedItems();
+    checked.delete(line);
+    saveCheckedItems(checked);
+    btn.closest('.sl-item').remove();
+    updateSlCount();
+}
+
+function updateSlCount() {
+    const total = document.querySelectorAll('.sl-item').length;
+    const done = document.querySelectorAll('.sl-item--checked').length;
+    const need = total - done;
+    const el = document.getElementById('slCount');
+    if (el) el.textContent = need > 0 ? `${need} item${need === 1 ? '' : 's'} to buy` : '✅ All set!';
+}
+
+function slCheckCommonPantry() {
+    const checked = getCheckedItems();
+    document.querySelectorAll('.sl-item').forEach(li => {
+        const line = decodeURIComponent(li.dataset.line);
+        if (PANTRY_STAPLES.some(s => line.toLowerCase().includes(s))) {
+            checked.add(line);
+            li.classList.add('sl-item--checked');
+            const cb = li.querySelector('.sl-check');
+            if (cb) cb.checked = true;
+        }
+    });
+    saveCheckedItems(checked);
+    updateSlCount();
+    toast('Pantry staples marked ✅');
+}
+
+function slClearAll() {
+    saveCheckedItems(new Set());
+    document.querySelectorAll('.sl-item').forEach(li => {
+        li.classList.remove('sl-item--checked');
+        const cb = li.querySelector('.sl-check');
+        if (cb) cb.checked = false;
+    });
+    updateSlCount();
+}
+
+function slCopyList() {
+    const items = [];
+    document.querySelectorAll('.sl-item:not(.sl-item--checked)').forEach(li => {
+        const text = li.querySelector('.sl-text');
+        if (text) items.push('• ' + text.textContent.trim());
+    });
+    if (!items.length) {
+        toast('Nothing left to buy — you have everything! ✅');
+        return;
+    }
+    const text = '🛒 Shopping List\n\n' + items.join('\n');
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard! 📋'));
+    } else {
+        toast('Clipboard not available on this browser');
+    }
+}
+
+// ==============================
 // INIT
 // ==============================
 updateSavedCount();

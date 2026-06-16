@@ -7,6 +7,7 @@
 // ==============================
 const NUTRITION_DB = {
     // [calories, protein(g), carbs(g), fat(g), fiber(g)] per 100g
+    // --- Proteins ---
     chicken: [165, 31, 0, 3.6, 0],
     beef: [250, 26, 0, 17, 0],
     pork: [242, 27, 0, 14, 0],
@@ -15,10 +16,10 @@ const NUTRITION_DB = {
     shrimp: [99, 24, 0.2, 0.3, 0],
     fish: [136, 24, 0, 5, 0],
     egg: [155, 13, 1, 11, 0],
-    eggs: [155, 13, 1, 11, 0],
     tofu: [76, 8, 2, 4, 0.3],
     turkey: [189, 29, 0, 7, 0],
     lamb: [294, 25, 0, 21, 0],
+    // --- Vegetables ---
     broccoli: [34, 2.8, 7, 0.4, 2.6],
     spinach: [23, 2.9, 3.6, 0.4, 2.2],
     zucchini: [17, 1.2, 3.1, 0.3, 1],
@@ -29,49 +30,245 @@ const NUTRITION_DB = {
     eggplant: [25, 1, 6, 0.2, 3],
     pepper: [31, 1, 6, 0.3, 2.1],
     asparagus: [20, 2.2, 3.9, 0.1, 2.1],
+    garlic: [149, 6.4, 33, 0.5, 2.1],
+    onion: [40, 1.1, 9.3, 0.1, 1.7],
+    // --- Legumes ---
     lentil: [116, 9, 20, 0.4, 7.9],
-    lentils: [116, 9, 20, 0.4, 7.9],
     chickpea: [164, 8.9, 27, 2.6, 7.6],
-    chickpeas: [164, 8.9, 27, 2.6, 7.6],
     beans: [127, 8.7, 22, 0.5, 6.4],
+    // --- Grains ---
     rice: [130, 2.7, 28, 0.3, 0.4],
     pasta: [158, 5.8, 31, 0.9, 1.8],
     quinoa: [120, 4.4, 21, 1.9, 2.8],
+    // --- Dairy & Fats ---
     cheese: [402, 25, 1.3, 33, 0],
+    parmesan: [431, 38, 4, 29, 0],
+    feta: [264, 14, 4, 21, 0],
     yogurt: [59, 10, 3.6, 0.4, 0],
+    butter: [717, 0.9, 0.1, 81, 0],
+    'olive oil': [884, 0, 0, 100, 0],
+    oil: [884, 0, 0, 100, 0],
+    // --- Fruits ---
     avocado: [160, 2, 9, 15, 6.7],
-    lemon: [29, 1.1, 9, 0.3, 2.8]
+    lemon: [29, 1.1, 9, 0.3, 2.8],
+    tomatoes: [18, 0.9, 3.9, 0.2, 1.2],
+    // --- Condiments / extras ---
+    'soy sauce': [53, 8, 5, 0.1, 0.8],
+    'coconut milk': [230, 2.3, 6, 24, 0],
+    wine: [85, 0.1, 2.6, 0, 0],
+    broth: [7, 1.2, 0.3, 0.2, 0],
+    vinegar: [18, 0, 0.9, 0, 0],
+    mustard: [66, 4.4, 5.8, 3.3, 3.2],
+    'miso paste': [199, 12, 26, 6, 5.4],
+    'curry paste': [130, 3, 14, 7, 2],
+    'fish sauce': [35, 5, 3.6, 0, 0]
 };
 
-const METHOD_CALORIES = {
-    Fried: 200,
-    'Air Fried': 60,
-    Sautéed: 80,
-    Baked: 30,
-    Roasted: 40,
-    Grilled: 20,
-    Steamed: 0,
-    'Raw / No-Cook': 0,
-    'Slow Cooked': 20,
-    'Instant Pot': 10
+// Unit → grams conversion table
+const UNIT_TO_GRAMS = {
+    // weight
+    g: 1,
+    gram: 1,
+    grams: 1,
+    kg: 1000,
+    oz: 28.35,
+    lb: 453.6,
+    lbs: 453.6,
+    pound: 453.6,
+    pounds: 453.6,
+    // volume (approximated as water density for sauces/liquids)
+    ml: 1,
+    l: 1000,
+    tsp: 5,
+    teaspoon: 5,
+    teaspoons: 5,
+    tbsp: 15,
+    tablespoon: 15,
+    tablespoons: 15,
+    cup: 240,
+    cups: 240,
+    // loose / countable
+    clove: 4,     // garlic clove ~4g
+    cloves: 4,
+    slice: 25,
+    slices: 25,
+    piece: 80,
+    pieces: 80,
+    sprig: 2,
+    sprigs: 2,
+    bunch: 30,
+    pinch: 0.5,
+    dash: 1
 };
 
-function estimateNutrition(ingredient, method, dietary, serves) {
-    const key = ingredient.toLowerCase().split(' ')[0].replace(/s$/, '');
-    const base = NUTRITION_DB[key] || NUTRITION_DB[key + 's'] || [200, 15, 15, 8, 2];
-    const factor = 300 / (parseInt(serves) || 2) / 100;
-    let [cal, prot, carb, fat, fib] = base.map((v) => Math.round(v * factor));
-    cal += METHOD_CALORIES[method] || 25;
+// Default weight when we only have a bare count (e.g. "2 eggs") — per food key in grams
+const ITEM_WEIGHT = {
+    egg: 50,
+    lemon: 65,
+    tomato: 100,
+    onion: 110,
+    avocado: 150,
+    potato: 150
+};
+
+/**
+ * Parse a single ingredient line and return estimated weight in grams.
+ * Examples handled:
+ *   "1–1.5 lbs chicken"  →  ~680g
+ *   "2 tbsp olive oil"   →  30g
+ *   "2 cloves garlic"    →  8g
+ *   "Salt & pepper to taste" → 0g (skipped)
+ */
+function parseIngredientWeight(line) {
+    const clean = line.toLowerCase().replace(/[–—]/g, '-').trim();
+
+    // Ignore seasoning/garnish lines that contribute negligible calories
+    if (/to taste|for (lining|grilling|frying|steaming|garnish)|drizzle|spray|cooking spray|fresh herbs|red pepper flake|parchment|foil/i.test(clean)) {
+        return 0;
+    }
+
+    // Extract leading quantity: supports "1", "1.5", "1-1.5", "½", "¼", "¾"
+    const fracMap = { '½': 0.5, '¼': 0.25, '¾': 0.75, '⅓': 0.333, '⅔': 0.667 };
+    let qty = 0;
+    let rest = clean;
+
+    // Unicode fractions
+    const fracMatch = rest.match(/^([½¼¾⅓⅔])/);
+    if (fracMatch) {
+        qty = fracMap[fracMatch[1]] || 0;
+        rest = rest.slice(fracMatch[1].length).trim();
+    } else {
+        // Numeric: "1", "1.5", "1-1.5" (take average of range)
+        const numMatch = rest.match(/^(\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)/);
+        if (numMatch) {
+            const parts = numMatch[1].split('-').map(Number);
+            qty = parts.length === 2 ? (parts[0] + parts[1]) / 2 : parts[0];
+            rest = rest.slice(numMatch[0].length).trim();
+        }
+    }
+
+    if (qty === 0) return 0;
+
+    // Extract unit
+    const unitMatch = rest.match(/^([a-z]+(?:\s+[a-z]+)?)/);
+    let grams = 0;
+    if (unitMatch) {
+        const unitRaw = unitMatch[1].trim();
+        const unitG = UNIT_TO_GRAMS[unitRaw] || UNIT_TO_GRAMS[unitRaw.split(' ')[0]];
+        if (unitG) {
+            grams = qty * unitG;
+        }
+    }
+
+    // Fallback: treat qty as item count
+    if (grams === 0) {
+        // Try to identify the food word and use ITEM_WEIGHT
+        for (const [food, wt] of Object.entries(ITEM_WEIGHT)) {
+            if (rest.includes(food)) {
+                grams = qty * wt;
+                break;
+            }
+        }
+        // Final fallback: 80g per unit (generic "medium" item)
+        if (grams === 0) grams = qty * 80;
+    }
+
+    return grams;
+}
+
+/**
+ * Given an ingredient line, find the best matching key in NUTRITION_DB.
+ */
+function matchNutritionKey(line) {
+    const clean = line.toLowerCase();
+    // Try multi-word keys first (longest match wins)
+    const keys = Object.keys(NUTRITION_DB).sort((a, b) => b.length - a.length);
+    for (const key of keys) {
+        if (clean.includes(key)) return key;
+    }
+    // Try singular form
+    for (const key of keys) {
+        if (clean.includes(key.replace(/s$/, ''))) return key;
+    }
+    return null;
+}
+
+const METHOD_COOKING_FAT = {
+    Fried: { fat: 8, cal: 72 },        // ~8g oil absorbed
+    'Air Fried': { fat: 2, cal: 18 },
+    Sautéed: { fat: 3, cal: 27 },      // some oil in the pan
+    Baked: { fat: 1, cal: 9 },
+    Roasted: { fat: 1.5, cal: 14 },
+    Grilled: { fat: 0.5, cal: 5 },
+    Steamed: { fat: 0, cal: 0 },
+    'Raw / No-Cook': { fat: 0, cal: 0 },
+    'Slow Cooked': { fat: 0.5, cal: 5 },
+    'Instant Pot': { fat: 0.5, cal: 5 }
+};
+
+/**
+ * Compute nutrition by summing over the full ingredient list.
+ * Falls back to a single-ingredient estimate only when no ingredients array is provided.
+ */
+function estimateNutrition(primaryIngredient, method, dietary, serves, ingredientsList) {
+    const servings = parseInt(serves) || 2;
+
+    let totalCal = 0, totalProt = 0, totalCarb = 0, totalFat = 0, totalFib = 0;
+    let matched = 0;
+
+    const lines = ingredientsList && ingredientsList.length ? ingredientsList : [`1–1.5 lbs ${primaryIngredient}`];
+
+    for (const line of lines) {
+        const grams = parseIngredientWeight(line);
+        if (grams === 0) continue;
+
+        const key = matchNutritionKey(line);
+        const base = key
+            ? NUTRITION_DB[key]
+            : NUTRITION_DB[primaryIngredient.toLowerCase()] || [200, 15, 15, 8, 2];
+
+        const f = grams / 100;
+        totalCal  += base[0] * f;
+        totalProt += base[1] * f;
+        totalCarb += base[2] * f;
+        totalFat  += base[3] * f;
+        totalFib  += base[4] * f;
+        if (key) matched++;
+    }
+
+    // Add extra calories/fat from cooking method (per whole recipe, not per serving)
+    const mExtra = METHOD_COOKING_FAT[method] || { fat: 1, cal: 9 };
+    totalCal += mExtra.cal;
+    totalFat += mExtra.fat;
+
+    // Divide by servings
+    let cal  = Math.round(totalCal  / servings);
+    let prot = Math.round(totalProt / servings);
+    let carb = Math.round(totalCarb / servings);
+    let fat  = Math.round(totalFat  / servings);
+    let fib  = Math.round(totalFib  / servings);
+
+    // Dietary adjustments
     if (dietary === 'Keto') {
         carb = Math.max(2, Math.round(carb * 0.3));
-        fat = Math.round(fat * 1.5);
+        fat  = Math.round(fat * 1.5);
+        cal  = Math.round(prot * 4 + carb * 4 + fat * 9 + fib * 2);
     }
     if (dietary === 'Low-Carb') {
         carb = Math.max(4, Math.round(carb * 0.5));
+        cal  = Math.round(prot * 4 + carb * 4 + fat * 9 + fib * 2);
     }
-    if (dietary === 'Vegan' || dietary === 'Vegetarian') {
-        prot = Math.max(prot, 8);
+    if ((dietary === 'Vegan' || dietary === 'Vegetarian') && prot < 8) {
+        prot = 8;
     }
+
+    // Sanity floor
+    cal  = Math.max(cal,  50);
+    prot = Math.max(prot, 0);
+    carb = Math.max(carb, 0);
+    fat  = Math.max(fat,  0);
+    fib  = Math.max(fib,  0);
+
     return { cal, prot, carb, fat, fib };
 }
 
@@ -371,7 +568,7 @@ function buildRecipe(ingredient, cuisine, dietary, meal, method) {
         serves: t.serves,
         difficulty: t.difficulty,
         rawIngredient: ingredient,
-        nutrition: estimateNutrition(ingredient, meth, diet, t.serves)
+        nutrition: estimateNutrition(ingredient, meth, diet, t.serves, t.ingredients)
     };
 }
 

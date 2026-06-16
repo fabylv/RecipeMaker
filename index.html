@@ -169,9 +169,7 @@
         </div>
         <div id="savedList"></div>
         <div class="saved-footer">
-          <button class="btn-create-cookbook" id="createCookbookBtn" onclick="handleCreateCookbook()">
-            &#128214; Create My Cookbook
-          </button>
+          <p class="saved-footer-hint">Save 20 recipes to create your cookbook 📖</p>
         </div>
       </section>
 
@@ -188,78 +186,49 @@
     📚 <span id="savedCount">0</span>
   </button>
 
+  <!-- Cookbook progress button -->
+  <button class="btn-cookbook" id="cookbookBtn" onclick="handleCookbookBtn()" disabled>
+    <span id="cbBtnLabel">📖 Create My Cookbook (0/20 recipes)</span>
+    <div class="cb-bar-track"><div class="cb-bar-fill" id="cbFill" style="width:0%"></div></div>
+  </button>
+
   <!-- Toast -->
   <div id="toastEl" class="toast"></div>
 
-  <!-- PDF PRINT VIEW (hidden, shown only when printing) -->
+  <!-- PDF PRINT VIEW -->
   <div id="printView" class="print-view">
-    <!-- Cover -->
     <div class="print-cover">
-      <p class="print-eyebrow" id="printCoverEyebrow">RECIPE COLLECTION</p>
+      <p class="print-eyebrow">A PERSONAL COOKBOOK</p>
       <h1 class="print-title" id="printCoverTitle">My Favorite Recipes</h1>
       <p class="print-cover-subtitle" id="printCoverSubtitle"></p>
       <p class="print-cover-author" id="printCoverAuthor"></p>
       <p class="print-date" id="printDate"></p>
       <p class="print-tagline">&#10024; Created with PantrySpark</p>
     </div>
-    <!-- Front matter (copyright, dedication) -->
-    <div id="printFrontMatter"></div>
-    <!-- Table of Contents -->
     <div id="printTOC"></div>
-    <!-- Recipes -->
     <div id="printRecipes"></div>
-    <!-- Back matter (index) -->
-    <div id="printBackMatter"></div>
   </div>
 
-  <!-- CELEBRATION MODAL — fires at recipe #20 -->
+  <!-- CELEBRATION MODAL -->
   <div class="modal-overlay hidden" id="celebrationModal">
     <div class="modal modal--celebration">
       <button class="modal-close" onclick="closeCelebrationModal()">&#10005;</button>
       <div class="celebration-icon">&#127881;</div>
       <h2 class="modal-title">Your cookbook is ready!</h2>
-      <p class="modal-sub">You've saved <strong>20 recipes</strong>.<br>Turn them into a beautiful cookbook.</p>
-      <div class="cookbook-tiers">
-
-        <div class="tier-card" onclick="openCookbookModal('basic')">
-          <div class="tier-price">$4.99</div>
-          <div class="tier-name">Basic Cookbook</div>
-          <ul class="tier-features">
-            <li>&#10003; Clean PDF</li>
-            <li>&#10003; Auto-generated cover</li>
-            <li>&#10003; All recipes included</li>
-            <li>&#10003; Nutrition facts</li>
-          </ul>
-          <span class="btn-tier">Create Basic &rarr;</span>
-        </div>
-
-        <div class="tier-card tier-card--featured">
-          <div class="tier-popular-badge">&#10024; Most Popular</div>
-          <div class="tier-price">$9.99</div>
-          <div class="tier-name">Premium Cookbook</div>
-          <ul class="tier-features">
-            <li>&#10003; Custom title &amp; author</li>
-            <li>&#10003; 4 cover styles</li>
-            <li>&#10003; Table of contents</li>
-            <li>&#10003; Page numbers</li>
-            <li>&#10003; Better typography</li>
-          </ul>
-          <span class="btn-tier btn-tier--featured" onclick="event.stopPropagation(); openCookbookModal('premium')">Create Premium &rarr;</span>
-        </div>
-
-        <div class="tier-card" onclick="openCookbookModal('print')">
-          <div class="tier-price">$14.99</div>
-          <div class="tier-name">Print-Ready</div>
-          <ul class="tier-features">
-            <li>&#10003; Everything in Premium</li>
-            <li>&#10003; 6&times;9&quot; KDP-ready</li>
-            <li>&#10003; Copyright &amp; dedication</li>
-            <li>&#10003; Notes pages</li>
-            <li>&#10003; Recipe index</li>
-          </ul>
-          <span class="btn-tier">Create Print-Ready &rarr;</span>
-        </div>
-
+      <p class="modal-sub">You've saved <strong>20 recipes</strong>.<br>Turn them into a beautiful cookbook you can keep forever.</p>
+      <div class="cookbook-offer">
+        <div class="cookbook-offer-price">$9.99</div>
+        <div class="cookbook-offer-name">My PantrySpark Cookbook</div>
+        <ul class="cookbook-offer-features">
+          <li>&#10003; Custom title &amp; your name on the cover</li>
+          <li>&#10003; Table of contents</li>
+          <li>&#10003; Beautiful formatting</li>
+          <li>&#10003; All your recipes with nutrition facts</li>
+          <li>&#10003; Downloadable PDF</li>
+        </ul>
+        <button class="btn-generate" onclick="openCookbookModal()" style="width:100%">
+          Create My Cookbook &rarr;
+        </button>
       </div>
       <p class="modal-fine">&#9888;&#65039; Stripe payment coming soon &mdash; preview mode active</p>
     </div>
@@ -269,24 +238,19 @@
   <div class="modal-overlay hidden" id="cookbookModal">
     <div class="modal modal--cookbook">
       <button class="modal-close" onclick="closeCookbookModal()">&#10005;</button>
-      <p class="modal-eyebrow" id="cbTierLabel">PREMIUM COOKBOOK &mdash; $9.99</p>
+      <p class="modal-eyebrow">YOUR COOKBOOK &mdash; $9.99</p>
       <h2 class="modal-title">Make it yours</h2>
 
       <div class="cookbook-form">
         <label class="cb-label">Cookbook Title
           <input type="text" id="cbTitle" placeholder="My Favorite Recipes" maxlength="60" />
         </label>
-        <label class="cb-label">Subtitle
+        <label class="cb-label">Subtitle <span class="cb-optional">(optional)</span>
           <input type="text" id="cbSubtitle" placeholder="A Collection of Kitchen Adventures" maxlength="80" />
         </label>
-        <label class="cb-label">Author Name
-          <input type="text" id="cbAuthor" placeholder="Your Name" maxlength="60" />
+        <label class="cb-label">Your Name
+          <input type="text" id="cbAuthor" placeholder="e.g. Grandma Rose" maxlength="60" />
         </label>
-        <div id="cbDedicationField" class="hidden">
-          <label class="cb-label">Dedication <span class="cb-optional">(optional)</span>
-            <input type="text" id="cbDedication" placeholder="For Mom, who taught me to cook..." maxlength="120" />
-          </label>
-        </div>
 
         <div class="cover-style-picker">
           <p class="cb-label-plain">Cover Style</p>

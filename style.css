@@ -328,7 +328,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .btn-export-pdf { width: 100%; min-height: 42px; border-radius: var(--radius-pill); cursor: pointer; font-weight: 800; }
 .pdf-pro-badge { background: var(--accent); color: #fff; font-size: .6rem; padding: .18rem .5rem; border-radius: var(--radius-pill); margin-left:.25rem; }
 
-.btn-saved-toggle { position: fixed; right: 1.1rem; bottom: 1.1rem; z-index: 100; border: none; border-radius: var(--radius-pill); background: var(--btn-dark); color: #fff; padding: .78rem 1.05rem; font-weight: 800; box-shadow: 0 12px 28px rgba(79,59,43,.24); cursor: pointer; }
+.btn-saved-toggle { position: fixed; right: 1.1rem; bottom: 5.5rem; z-index: 100; border: none; border-radius: var(--radius-pill); background: var(--btn-dark); color: #fff; padding: .78rem 1.05rem; font-weight: 800; box-shadow: 0 12px 28px rgba(79,59,43,.24); cursor: pointer; }
 .toast { position: fixed; left: 50%; bottom: 4.8rem; transform: translateX(-50%) translateY(14px); opacity: 0; background: var(--text-dark); color: #fff; border-radius: var(--radius-pill); padding: .7rem 1.05rem; font-size: .82rem; font-weight: 800; pointer-events:none; transition: opacity .25s, transform .25s; z-index: 200; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); font-size: .76rem; }
@@ -403,78 +403,109 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
 }
 
 /* ==============================
+   COOKBOOK PROGRESS BUTTON
+   ============================== */
+.btn-cookbook {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg, rgba(255,253,248,.96));
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg, var(--radius));
+    padding: .65rem 1.2rem;
+    font-family: var(--font-ui);
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    cursor: not-allowed;
+    box-shadow: var(--shadow-md, 0 8px 24px rgba(79,59,43,.13));
+    min-width: 220px;
+    text-align: center;
+    z-index: 90;
+    transition: all .25s;
+    background: rgba(255,253,248,.96);
+}
+.btn-cookbook:not(:disabled) {
+    cursor: pointer;
+    border-color: var(--btn-dark);
+    color: var(--btn-dark);
+}
+.cookbook-btn--ready {
+    background: var(--btn-dark) !important;
+    color: #fff !important;
+    border-color: var(--btn-dark) !important;
+    animation: pulse-cookbook 2.5s infinite;
+}
+.cookbook-btn--ready:hover { opacity: .9; transform: translateX(-50%) translateY(-2px); }
+@keyframes pulse-cookbook {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(79,59,43,.35); }
+    50%       { box-shadow: 0 0 0 8px rgba(79,59,43,0); }
+}
+.cb-bar-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    margin-top: .4rem;
+    overflow: hidden;
+}
+.cb-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8B4513, #6B8F71);
+    border-radius: 99px;
+    transition: width .4s ease;
+}
+
+/* ==============================
    CELEBRATION MODAL
    ============================== */
 .modal--celebration {
-  max-width: 780px;
+  max-width: 440px;
   text-align: center;
   padding: 2rem 1.5rem 1.5rem;
 }
 .celebration-icon { font-size: 2.8rem; margin-bottom: .5rem; }
-.modal--celebration .modal-title { margin-bottom: .3rem; }
-.modal--celebration .modal-sub { color: var(--text-light); margin-bottom: 1.5rem; }
+.modal--celebration .modal-title { margin-bottom: .25rem; }
+.modal--celebration .modal-sub { color: var(--text-light); margin-bottom: 1.5rem; font-size: .95rem; }
 
-.cookbook-tiers {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-@media (max-width: 640px) {
-  .cookbook-tiers { grid-template-columns: 1fr; }
-}
-
-.tier-card {
-  border: 2px solid var(--border);
+.cookbook-offer {
+  border: 2px solid var(--btn-dark);
   border-radius: var(--radius);
-  padding: 1rem .9rem 1.2rem;
-  cursor: pointer;
-  transition: all .2s;
-  position: relative;
+  padding: 1.3rem 1.2rem 1.4rem;
+  margin-bottom: 1rem;
   text-align: left;
 }
-.tier-card:hover { border-color: #8B4513; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,59,43,0.12); }
-.tier-card--featured { border-color: var(--btn-dark); background: var(--bg-soft, #fdf8f3); }
-.tier-popular-badge {
-  position: absolute;
-  top: -10px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--btn-dark);
-  color: #fff;
-  font-size: .6rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  padding: .2rem .6rem;
-  border-radius: 99px;
-  white-space: nowrap;
+.cookbook-offer-price {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1;
+  margin-bottom: .2rem;
 }
-.tier-price { font-family: var(--font-serif); font-size: 1.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: .15rem; }
-.tier-name { font-weight: 700; font-size: .85rem; margin-bottom: .6rem; color: var(--text-dark); }
-.tier-features { list-style: none; padding: 0; margin: 0 0 .9rem; font-size: .78rem; color: var(--text-mid); }
-.tier-features li { padding: .2rem 0; }
-.btn-tier {
-  display: block;
-  width: 100%;
-  padding: .5rem .8rem;
-  background: var(--border);
+.cookbook-offer-name {
+  font-weight: 700;
+  font-size: .9rem;
   color: var(--text-mid);
-  border: none;
-  border-radius: var(--radius-pill);
-  font-size: .8rem;
-  font-weight: 600;
-  text-align: center;
-  cursor: pointer;
-  transition: background .15s;
+  margin-bottom: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
 }
-.btn-tier--featured { background: var(--btn-dark); color: #fff; }
-.btn-tier--featured:hover { opacity: .88; }
-.tier-card:hover .btn-tier:not(.btn-tier--featured) { background: var(--btn-dark); color: #fff; }
+.cookbook-offer-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.1rem;
+  font-size: .85rem;
+  color: var(--text-mid);
+}
+.cookbook-offer-features li { padding: .25rem 0; }
+
+.saved-footer-hint { font-size: .78rem; color: var(--text-light); text-align: center; margin: 0; padding: .5rem 0; }
 
 /* ==============================
    COOKBOOK CUSTOMIZATION MODAL
    ============================== */
-.modal--cookbook { max-width: 520px; padding: 1.8rem 1.5rem; }
+.modal--cookbook { max-width: 480px; padding: 1.8rem 1.5rem 1.5rem; }
 .cookbook-form { display: flex; flex-direction: column; gap: .8rem; margin-top: 1rem; }
 .cb-label {
   display: flex;
@@ -558,6 +589,12 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
   /* Hide everything except the print view */
   body > *:not(#printView) { display: none !important; }
   .print-view { display: block !important; }
+
+  /* Cover style variants */
+  .cover-rustic  .print-cover { background: #6B3D2A !important; color: #f5e6d3 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cover-modern  .print-cover { background: #1a1a1a !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .cover-minimal .print-cover { background: #fff !important; color: #222 !important; border: 3px solid #222; }
+  .cover-vintage .print-cover { background: #e8dcc8 !important; color: #4a3728 !important; font-style: italic; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
   /* ---- Cover page ---- */
   .print-cover {

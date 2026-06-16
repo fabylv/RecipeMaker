@@ -642,7 +642,7 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
     justify-content: center;
     text-align: center;
     page-break-after: always;
-    border-bottom: 3px solid #2F3A33;
+    padding: 3rem 2.5rem;
   }
 
   .print-eyebrow {
@@ -650,44 +650,50 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
     font-size: 9pt;
     font-weight: 700;
     letter-spacing: 3px;
-    color: #8a9e8d;
     text-transform: uppercase;
     margin-bottom: 1.5rem;
+    opacity: .75;
+    color: inherit;
   }
 
   .print-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 52pt;
+    font-size: 64pt;
     font-weight: 700;
-    line-height: 1.1;
-    color: #2F3A33;
+    line-height: 1.05;
+    color: inherit;
     margin-bottom: 1rem;
+    text-shadow: inherit;
   }
 
   .print-title em {
     font-style: italic;
-    color: #D97B4A;
   }
 
   .print-date {
     font-family: 'Inter', sans-serif;
-    font-size: 12pt;
-    color: #8a9e8d;
+    font-size: 11pt;
+    color: inherit;
+    opacity: .8;
     margin-bottom: .5rem;
   }
 
   .print-tagline {
     font-family: 'Inter', sans-serif;
     font-size: 10pt;
-    color: #9ab89d;
+    color: inherit;
+    opacity: .7;
   }
 
-  /* ---- Recipe pages ---- */
+  /* ---- TOC: full page ---- */
+  .print-toc {
+    page-break-before: always;
+    page-break-after: always;
+  }
+
+  /* ---- Recipe pages: each on its own page ---- */
   .print-page-break { page-break-before: always; }
-
-  .print-recipe {
-    padding-top: .5rem;
-  }
+  .print-recipe { page-break-before: always; padding-top: 1rem; }
 
   .print-recipe-header {
     border-bottom: 2px solid #2F3A33;
@@ -856,7 +862,7 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
   .cover-style-vintage .print-cover  { background: #e8dcc8; color: #4a3728; font-style: italic; }
 
   /* TOC */
-  .print-toc { padding: 2rem; }
+  .print-toc { padding: 2.5rem 2rem; }
   .print-toc-title { font-size: 1.6rem; margin-bottom: 1.5rem; border-bottom: 2px solid currentColor; padding-bottom: .5rem; }
   .print-toc-list { list-style: none; padding: 0; }
   .print-toc-list li { display: flex; align-items: baseline; padding: .4rem 0; font-size: .9rem; border-bottom: 1px dotted #ccc; }

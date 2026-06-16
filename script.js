@@ -953,7 +953,7 @@ function exportCookbook({ title, author, subtitle, coverStyle }) {
 
     // Recipes
     document.getElementById('printRecipes').innerHTML = saved.map((r, i) => `
-<div class="print-recipe${i > 0 ? ' print-page-break' : ''}">
+<div class="print-recipe">
   <div class="print-recipe-header">
     <span class="print-recipe-num">${String(i + 1).padStart(2, '0')}</span>
     <h2 class="print-recipe-name">${r.name}</h2>

@@ -464,11 +464,16 @@ function setIngredient(value) {
 // GENERATE
 // ==============================
 async function generateRecipe() {
-    // Parse natural language — take the first ingredient before 'and', '&', or ','  
+    // Parse natural language — split on comma, newline, 'and', or '&'
     const raw = document.getElementById('ingredient').value.trim();
-    const ingredient = raw.split(/\s+and\s+|\s*[,&]\s*/i)[0].trim();
+    const allIngredients = raw
+        .split(/\n|,|\s+and\s+|\s*&\s*/i)
+        .map(s => s.trim())
+        .filter(Boolean);
+    const ingredient = allIngredients[0]; // primary ingredient
+    const extraIngredientsFridge = allIngredients.slice(1);  // the rest
     if (!ingredient) {
-        toast('Please enter an ingredient first!');
+        toast('Enter at least one ingredient!');
         document.getElementById('ingredient').focus();
         return;
     }
@@ -487,11 +492,11 @@ async function generateRecipe() {
 
     await new Promise((r) => setTimeout(r, 800 + Math.random() * 600));
 
-    lastIngredient = ingredient;
+    lastIngredient = raw;
     document.getElementById('ingredient').value = '';
     updateAnotherBtn();
 
-    currentRecipe = buildRecipe(ingredient, cuisine, dietary, meal, method);
+    currentRecipe = buildRecipe(ingredient, cuisine, dietary, meal, method, extraIngredientsFridge);
     renderRecipe(currentRecipe);
 
     btn.disabled = false;
@@ -546,13 +551,13 @@ function renderRecipe(r) {
 // ==============================
 // RECIPE BUILDER
 // ==============================
-function buildRecipe(ingredient, cuisine, dietary, meal, method) {
+function buildRecipe(ingredient, cuisine, dietary, meal, method, fridgeExtras = []) {
     const ing = capitalize(ingredient);
     const cui = cuisine || pick(['Italian', 'Mediterranean', 'Asian', 'American', 'French']);
     const diet = dietary || '';
     const ml = meal || pick(['Lunch', 'Dinner', 'Snack']);
     const meth = method || pick(['Baked', 'Grilled', 'Sautéed', 'Roasted']);
-    const t = getTemplate(ing, cui, diet, ml, meth);
+    const t = getTemplate(ing, cui, diet, ml, meth, fridgeExtras);
     return {
         name: t.name,
         cuisine,
@@ -565,11 +570,12 @@ function buildRecipe(ingredient, cuisine, dietary, meal, method) {
         serves: t.serves,
         difficulty: t.difficulty,
         rawIngredient: ingredient,
+        fridgeExtras,
         nutrition: estimateNutrition(ingredient, meth, diet, t.serves, t.ingredients)
     };
 }
 
-function getTemplate(ing, cui, diet, ml, meth) {
+function getTemplate(ing, cui, diet, ml, meth, fridgeExtras = []) {
     const adj = pick([
         'Rustic',
         'Golden',
@@ -585,7 +591,7 @@ function getTemplate(ing, cui, diet, ml, meth) {
     const name = `${adj} ${cuisineStyle(cui)}${ing} ${mealSuffix(ml)}`;
     return {
         name,
-        ingredients: [...baseIngredients(ing, cui), ...extraIngredients(meth)],
+        ingredients: [...baseIngredients(ing, cui, fridgeExtras), ...extraIngredients(meth)],
         steps: buildSteps(ing, meth),
         time: cookTime(meth),
         serves: pick(['2', '4', '2–4', '6']),
@@ -593,7 +599,7 @@ function getTemplate(ing, cui, diet, ml, meth) {
     };
 }
 
-function baseIngredients(ing, cui) {
+function baseIngredients(ing, cui, fridgeExtras = []) {
     const base = [
         `1–1.5 lbs ${ing}`,
         `2 cloves garlic, minced`,
@@ -619,7 +625,11 @@ function baseIngredients(ing, cui) {
         Greek: ['½ cup feta, crumbled', '1 tsp dried oregano', 'Lemon juice'],
         'Middle Eastern': ['1 tsp cumin', '1 tsp coriander', 'Fresh mint']
     };
-    return [...base, ...(cuiExtras[cui] || ['Fresh herbs of your choice'])];
+    // Weave in any fridge extras the user typed, skipping duplicates already in base
+    const fridgeLines = fridgeExtras
+        .filter(e => !base.some(b => b.toLowerCase().includes(e.toLowerCase())))
+        .map(e => `1 cup ${capitalize(e)}`);
+    return [...base, ...fridgeLines, ...(cuiExtras[cui] || ['Fresh herbs of your choice'])];
 }
 
 function extraIngredients(meth) {
@@ -958,6 +968,7 @@ function exportCookbook({ title, author, subtitle, coverStyle }) {
 // ANOTHER / NEW INGREDIENT
 // ==============================
 function generateAnother() {
+    // Restore the full ingredient list (including fridge extras)
     if (lastIngredient) document.getElementById('ingredient').value = lastIngredient;
     generateRecipe();
 }
@@ -972,8 +983,10 @@ function newSearch() {
 function updateAnotherBtn() {
     const btn = document.getElementById('anotherBtn');
     if (!btn) return;
-    btn.innerHTML = lastIngredient
-        ? `🔄 New ${capitalize(lastIngredient)} Recipe`
+    // Show just the primary ingredient in the button label
+    const primary = lastIngredient.split(/\n|,|\s+and\s+|\s*&\s*/i)[0].trim();
+    btn.innerHTML = primary
+        ? `🔄 New ${capitalize(primary)} Recipe`
         : '🔄 New Recipe';
 }
 

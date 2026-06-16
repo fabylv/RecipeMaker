@@ -642,48 +642,106 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
     justify-content: center;
     text-align: center;
     page-break-after: always;
-    padding: 3rem 2.5rem;
+    padding: 2rem;
   }
+
+  /* Card overlay — sits on top of the background photo */
+  .print-cover-card {
+    background: rgba(255,255,255,0.88);
+    border-radius: 12pt;
+    padding: 2.5rem 3rem;
+    max-width: 80%;
+    box-shadow: 0 8pt 32pt rgba(0,0,0,0.18);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Dark photo covers (rustic, modern, vintage) get a dark semi-transparent card */
+  .cover-rustic  .print-cover-card,
+  .cover-modern  .print-cover-card,
+  .cover-vintage .print-cover-card { background: rgba(20,12,6,0.72); }
+  .cover-minimal .print-cover-card { background: rgba(255,255,255,0.92); border: 2pt solid #ddd; }
 
   .print-eyebrow {
     font-family: 'Inter', sans-serif;
-    font-size: 9pt;
-    font-weight: 700;
-    letter-spacing: 3px;
+    font-size: 8pt;
+    font-weight: 800;
+    letter-spacing: 4px;
     text-transform: uppercase;
-    margin-bottom: 1.5rem;
-    opacity: .75;
-    color: inherit;
+    margin-bottom: 1rem;
   }
+  /* Light card: dark eyebrow; dark card: light eyebrow */
+  .cover-minimal .print-eyebrow { color: #999; }
+  .cover-rustic  .print-eyebrow,
+  .cover-modern  .print-eyebrow,
+  .cover-vintage .print-eyebrow { color: rgba(255,255,255,0.6); }
 
   .print-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 64pt;
+    font-size: 52pt;
     font-weight: 700;
     line-height: 1.05;
-    color: inherit;
-    margin-bottom: 1rem;
-    text-shadow: inherit;
+    margin: 0 0 .5rem;
   }
+  .cover-minimal .print-title { color: #1a1a1a; }
+  .cover-rustic  .print-title,
+  .cover-modern  .print-title,
+  .cover-vintage .print-title { color: #fff; }
 
-  .print-title em {
+  .print-title em { font-style: italic; }
+
+  .print-cover-subtitle {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 16pt;
     font-style: italic;
+    margin: .4rem 0 .3rem;
   }
+  .cover-minimal .print-cover-subtitle { color: #555; }
+  .cover-rustic  .print-cover-subtitle,
+  .cover-modern  .print-cover-subtitle,
+  .cover-vintage .print-cover-subtitle { color: rgba(255,255,255,0.85); }
+
+  .print-cover-author {
+    font-family: 'Inter', sans-serif;
+    font-size: 13pt;
+    font-weight: 600;
+    margin: .3rem 0 .8rem;
+  }
+  .cover-minimal .print-cover-author { color: #444; }
+  .cover-rustic  .print-cover-author,
+  .cover-modern  .print-cover-author,
+  .cover-vintage .print-cover-author { color: rgba(255,255,255,0.9); }
+
+  .print-cover-divider {
+    width: 3rem;
+    height: 2pt;
+    margin: .7rem auto;
+    border-radius: 99pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cover-minimal .print-cover-divider { background: #bbb; }
+  .cover-rustic  .print-cover-divider,
+  .cover-modern  .print-cover-divider,
+  .cover-vintage .print-cover-divider { background: rgba(255,255,255,0.4); }
 
   .print-date {
     font-family: 'Inter', sans-serif;
-    font-size: 11pt;
-    color: inherit;
-    opacity: .8;
-    margin-bottom: .5rem;
+    font-size: 10pt;
+    margin-bottom: .3rem;
   }
+  .cover-minimal .print-date { color: #888; }
+  .cover-rustic  .print-date,
+  .cover-modern  .print-date,
+  .cover-vintage .print-date { color: rgba(255,255,255,0.65); }
 
   .print-tagline {
     font-family: 'Inter', sans-serif;
-    font-size: 10pt;
-    color: inherit;
-    opacity: .7;
+    font-size: 9pt;
   }
+  .cover-minimal .print-tagline { color: #aaa; }
+  .cover-rustic  .print-tagline,
+  .cover-modern  .print-tagline,
+  .cover-vintage .print-tagline { color: rgba(255,255,255,0.5); }
 
   /* ---- TOC: full page ---- */
   .print-toc {
@@ -840,20 +898,7 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
     margin-top: 1rem;
   }
 
-  /* Print cover extra elements */
-  .print-cover-subtitle {
-    font-family: 'Inter', sans-serif;
-    font-size: 13pt;
-    color: #8a9e8d;
-    margin-bottom: .3rem;
-  }
-  .print-cover-author {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 14pt;
-    font-style: italic;
-    color: #8a9e8d;
-    margin-bottom: .5rem;
-  }
+    /* print-cover-subtitle/author defined above with .print-cover-card */
 
   /* Premium cover styles */
   .cover-style-rustic .print-cover   { background: #6B3D2A; color: #f5e6d3; }

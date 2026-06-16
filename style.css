@@ -392,7 +392,7 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
 @media (max-width: 640px) {
   .page { padding-inline: .85rem; }
   .topbar { margin-bottom: .8rem; }
-  .brand-copy span { display: none; }
+  .brand-copy span { font-size: .65rem; }
   .hero { padding: 2.25rem 1rem 1.6rem; }
   .search-row { grid-template-columns: 1fr; }
   .btn-generate { width: 100%; }

@@ -170,6 +170,9 @@ function closePaywall() {
 function upgradePlan(plan) {
     // TODO: replace with Stripe Checkout redirect
     // window.location.href = '/checkout?plan=' + plan;
+    // ⚠️ SECURITY: Plan status is currently stored in localStorage only.
+    // Anyone can unlock Premium via the browser console: localStorage.setItem('rm_plan', 'premium')
+    // Before going live, verify plan status server-side (e.g. via a Stripe webhook + your own API).
     setPlan(plan);
     closePaywall();
     renderUsagePill();
@@ -331,7 +334,7 @@ function renderRecipe(r) {
     const n = r.nutrition;
     document.getElementById('nutritionSection').innerHTML = `
     <div class="nutrition-box">
-      <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated</span></p>
+      <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated from primary ingredient only</span></p>
       <div class="nutrition-stats">
         <div class="nutr-stat"><span class="nutr-val">${n.cal}</span><span class="nutr-label">kcal</span></div>
         <div class="nutr-stat"><span class="nutr-val">${n.prot}g</span><span class="nutr-label">Protein</span></div>
@@ -585,6 +588,12 @@ function saveRecipe() {
         )
     ) {
         toast('Already saved!');
+        return;
+    }
+    const FREE_SAVE_LIMIT = 5;
+    if (getPlan() === 'free' && saved.length >= FREE_SAVE_LIMIT) {
+        openPaywall();
+        toast('Upgrade to Premium to save unlimited recipes! ✨');
         return;
     }
     saved.unshift({ ...currentRecipe, savedAt: Date.now() });

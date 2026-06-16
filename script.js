@@ -497,7 +497,7 @@ async function generateRecipe() {
 
     if (getPlan() === 'free' && recipesLeft() === 0) {
         setTimeout(
-            () => toast('That was your last free recipe today! Upgrade to keep going 🍽'),
+            () => toast('That was your last free recipe today! Unlock lifetime access to keep going 🍽'),
             1500
         );
     }
@@ -790,7 +790,7 @@ function saveRecipe() {
     const FREE_SAVE_LIMIT = 5;
     if (getPlan() === 'free' && saved.length >= FREE_SAVE_LIMIT) {
         openPaywall();
-        toast('Upgrade to Premium to save unlimited recipes! ✨');
+        toast('Unlock Premium for just $9.99 — unlimited saves forever! ✨');
         return;
     }
     saved.unshift({ ...currentRecipe, savedAt: Date.now() });
@@ -889,7 +889,7 @@ function deleteSaved(i) {
 async function exportPDF() {
     if (getPlan() === 'free') {
         openPaywall();
-        toast('Upgrade to Premium to export your Recipe Book! 📄');
+        toast('Unlock Premium for just $9.99 — export your Recipe Book forever! 📄');
         return;
     }
 

@@ -531,7 +531,7 @@ function renderRecipe(r) {
     const n = r.nutrition;
     document.getElementById('nutritionSection').innerHTML = `
     <div class="nutrition-box">
-      <p class="nutrition-title">🧑‍🍳 Nutrition per serving <span class="nutrition-est">estimated from primary ingredient only</span></p>
+      <p class="nutrition-title">📊 Estimated Nutrition Facts <span class="nutrition-est">per serving</span></p>
       <div class="nutrition-stats">
         <div class="nutr-stat"><span class="nutr-val">${n.cal}</span><span class="nutr-label">kcal</span></div>
         <div class="nutr-stat"><span class="nutr-val">${n.prot}g</span><span class="nutr-label">Protein</span></div>
@@ -937,7 +937,7 @@ async function exportPDF() {
           r.nutrition
               ? `
       <div class="print-nutrition">
-        <h3>NUTRITION PER SERVING (ESTIMATED)</h3>
+        <h3>ESTIMATED NUTRITION FACTS (PER SERVING)</h3>
         <div class="print-nutr-row">
           <span><strong>${r.nutrition.cal}</strong> kcal</span>
           <span><strong>${r.nutrition.prot}g</strong> Protein</span>

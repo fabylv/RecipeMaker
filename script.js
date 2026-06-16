@@ -456,7 +456,16 @@ let lastIngredient = '';
 
 function setIngredient(value) {
     const input = document.getElementById('ingredient');
-    input.value = value;
+    const current = input.value.trim();
+    // If already in the list, remove it (toggle off)
+    const parts = current ? current.split(/,\s*/) : [];
+    const idx = parts.findIndex(p => p.toLowerCase() === value.toLowerCase());
+    if (idx !== -1) {
+        parts.splice(idx, 1);
+        input.value = parts.join(', ');
+    } else {
+        input.value = current ? current + ', ' + value : value;
+    }
     input.focus();
 }
 

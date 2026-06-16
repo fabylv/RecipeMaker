@@ -277,6 +277,14 @@ function estimateNutrition(primaryIngredient, method, dietary, serves, ingredien
 // ==============================
 const COOKBOOK_GOAL = 10;
 const SAVED_KEY = 'rm_saved';
+const COOKBOOK_CREATED_KEY = 'rm_cookbook_created'; // tracks if user has exported at least once
+
+function hasCookbookBeenCreated() {
+    return !!localStorage.getItem(COOKBOOK_CREATED_KEY);
+}
+function markCookbookCreated() {
+    localStorage.setItem(COOKBOOK_CREATED_KEY, '1');
+}
 
 // ==============================
 // COOKBOOK PROGRESS
@@ -293,7 +301,10 @@ function updateCookbookProgress() {
     if (fill) fill.style.width = pct + '%';
 
     if (count >= COOKBOOK_GOAL) {
-        if (label) label.textContent = '📖 Create My Cookbook';
+        const already = hasCookbookBeenCreated();
+        if (label) label.textContent = already
+            ? `📖 New Edition (${count} recipes)`
+            : '📖 Create My Cookbook';
         if (btn) {
             btn.disabled = false;
             btn.classList.add('cookbook-btn--ready');
@@ -314,9 +325,15 @@ function updateCookbookProgress() {
 
     if (panelFill) panelFill.style.width = pct + '%';
     if (countEl) countEl.textContent = `${count} / ${COOKBOOK_GOAL} recipes`;
-    if (hint) hint.textContent = count >= COOKBOOK_GOAL
-        ? '🎉 Your cookbook is ready to create!'
-        : `Save ${COOKBOOK_GOAL - count} more recipe${COOKBOOK_GOAL - count === 1 ? '' : 's'} to unlock your cookbook.`;
+    if (hint) {
+        if (count >= COOKBOOK_GOAL) {
+            hint.textContent = hasCookbookBeenCreated()
+                ? `📖 Ready for a new edition! You have ${count} recipes.`
+                : '🎉 Your cookbook is ready to create!';
+        } else {
+            hint.textContent = `Save ${COOKBOOK_GOAL - count} more recipe${COOKBOOK_GOAL - count === 1 ? '' : 's'} to unlock your cookbook.`;
+        }
+    }
     if (panelBtn) {
         panelBtn.disabled = count < COOKBOOK_GOAL;
         panelBtn.classList.toggle('btn-create-cookbook--ready', count >= COOKBOOK_GOAL);
@@ -327,6 +344,14 @@ function updateCookbookProgress() {
 // CELEBRATION MODAL
 // ==============================
 function openCelebrationModal() {
+    const already = hasCookbookBeenCreated();
+    const count = getSaved().length;
+    const titleEl = document.getElementById('celebrationTitle');
+    const subEl = document.getElementById('celebrationSub');
+    if (titleEl) titleEl.textContent = already ? 'Time for a new edition!' : 'Your cookbook is ready!';
+    if (subEl) subEl.innerHTML = already
+        ? `You now have <strong>${count} recipes</strong>.<br>Create an updated edition of your cookbook.`
+        : `You've saved <strong>${count} recipes</strong>.<br>Turn them into a beautiful cookbook you can keep forever.`;
     document.getElementById('celebrationModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -989,6 +1014,10 @@ function exportCookbook({ title, author, subtitle, coverStyle }) {
     document.body.classList.add('cover-' + coverStyle);
 
     window.print();
+
+    // Mark cookbook as created so button label updates to "New Edition"
+    markCookbookCreated();
+    updateCookbookProgress();
 
     setTimeout(() => {
         document.body.classList.remove('cover-rustic', 'cover-modern', 'cover-minimal', 'cover-vintage');

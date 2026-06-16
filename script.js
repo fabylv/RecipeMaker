@@ -275,7 +275,7 @@ function estimateNutrition(primaryIngredient, method, dietary, serves, ingredien
 // ==============================
 // COOKBOOK CONFIG
 // ==============================
-const COOKBOOK_GOAL = 20;
+const COOKBOOK_GOAL = 10;
 const SAVED_KEY = 'rm_saved';
 
 // ==============================
@@ -299,7 +299,7 @@ function updateCookbookProgress() {
             btn.classList.add('cookbook-btn--ready');
         }
     } else {
-        if (label) label.textContent = `📖 Create My Cookbook (${count}/20 recipes)`;
+        if (label) label.textContent = `📖 Create My Cookbook (${count}/10 recipes)`;
         if (btn) {
             btn.disabled = true;
             btn.classList.remove('cookbook-btn--ready');

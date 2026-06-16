@@ -568,10 +568,10 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
   text-transform: uppercase;
   letter-spacing: .5px;
 }
-.cover-preview--rustic  { background: linear-gradient(145deg,#5c2e0e 0%,#8B4513 50%,#a0522d 100%); color: #f5e6d3; font-family: Georgia, serif; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
-.cover-preview--modern  { background: linear-gradient(160deg,#0f0f0f 0%,#2a2a2a 100%); color: #fff; letter-spacing: 2px; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
-.cover-preview--minimal { background: #fff; color: #333; border: 1.5px solid #ccc; font-style: italic; box-shadow: inset 0 0 0 4px #f0f0f0; }
-.cover-preview--vintage { background: linear-gradient(135deg,#f0e6d0 0%,#d4b896 100%); color: #4a3728; font-family: Georgia, serif; font-style: italic; text-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.cover-preview--rustic  { background: url('assets/covers/rustic.jpg') center/cover; color: #fff; font-family: Georgia, serif; text-shadow: 0 1px 4px rgba(0,0,0,.7); }
+.cover-preview--modern  { background: url('assets/covers/modern.jpg') center/cover; color: #fff; letter-spacing: 2px; text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+.cover-preview--minimal { background: url('assets/covers/minimal.jpg') center/cover; color: #222; font-style: italic; text-shadow: 0 1px 2px rgba(255,255,255,.8); }
+.cover-preview--vintage { background: url('assets/covers/vintage.jpg') center/cover; color: #fff; font-family: Georgia, serif; font-style: italic; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
 
 .print-view { display: none; }
 
@@ -608,28 +608,29 @@ footer { text-align: center; padding: 1.3rem 1rem; color: var(--text-light); fon
 
   /* Cover style variants */
   .cover-rustic  .print-cover {
-    background: linear-gradient(145deg,#5c2e0e 0%,#8B4513 55%,#a0522d 100%) !important;
-    color: #f5e6d3 !important;
+    background: url('assets/covers/rustic.jpg') center/cover !important;
+    color: #fff !important;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
-    text-shadow: 0 2px 6px rgba(0,0,0,.35);
+    text-shadow: 0 2px 8px rgba(0,0,0,.6);
   }
   .cover-modern  .print-cover {
-    background: linear-gradient(160deg,#0f0f0f 0%,#2a2a2a 100%) !important;
-    color: #f0f0f0 !important;
+    background: url('assets/covers/modern.jpg') center/cover !important;
+    color: #fff !important;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
-    letter-spacing: 2px;
+    text-shadow: 0 2px 8px rgba(0,0,0,.8);
   }
   .cover-minimal .print-cover {
-    background: #fff !important;
+    background: url('assets/covers/minimal.jpg') center/cover !important;
     color: #222 !important;
-    border: 4px double #222;
-    box-shadow: inset 0 0 0 10px #fafafa;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    text-shadow: 0 1px 3px rgba(255,255,255,.9);
   }
   .cover-vintage .print-cover {
-    background: linear-gradient(135deg,#f0e6d0 0%,#d4b896 100%) !important;
-    color: #3d2b1a !important;
-    font-style: italic;
+    background: url('assets/covers/vintage.jpg') center/cover !important;
+    color: #fff !important;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    text-shadow: 0 2px 8px rgba(0,0,0,.5);
+    font-style: italic;
   }
 
   /* ---- Cover page ---- */

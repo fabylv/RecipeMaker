@@ -23,7 +23,7 @@
         <strong>PantrySpark</strong>
         <span>Simple recipe ideas</span>
       </div>
-      <button class="btn-upgrade-inline topbar-plan" id="upgradeBtn" onclick="openPaywall()">View Plans &#8599;</button>
+
     </nav>
 
     <!-- Hero Header -->
@@ -35,10 +35,7 @@
       </h1>
       <p class="subhead">Type one ingredient from your kitchen and get a simple recipe idea in seconds.</p>
 
-      <!-- Usage pill -->
-      <div class="usage-row">
-        <div class="usage-pill" id="usagePill"></div>
-      </div>
+
     </header>
     <main>
 
@@ -160,11 +157,20 @@
           <h3>Saved Recipes</h3>
           <button class="btn-icon" onclick="toggleSaved()">&#10005;</button>
         </div>
+        <div class="cookbook-progress-panel" id="cookbookProgressPanel">
+          <div class="cb-progress-header">
+            <span class="cb-progress-title">&#128214; My Cookbook</span>
+            <span class="cb-progress-count" id="cbProgressCount">0 / 20 recipes</span>
+          </div>
+          <div class="cb-progress-track">
+            <div class="cb-progress-fill" id="cbProgressFill" style="width:0%"></div>
+          </div>
+          <p class="cb-progress-hint" id="cbProgressHint">Save 20 recipes to unlock your personal cookbook.</p>
+        </div>
         <div id="savedList"></div>
         <div class="saved-footer">
-          <button class="btn-export-pdf" onclick="exportPDF()">
-            &#128196; Export My Recipe Book
-            <span class="pdf-pro-badge">PRO</span>
+          <button class="btn-create-cookbook" id="createCookbookBtn" onclick="handleCreateCookbook()">
+            &#128214; Create My Cookbook
           </button>
         </div>
       </section>
@@ -187,64 +193,124 @@
 
   <!-- PDF PRINT VIEW (hidden, shown only when printing) -->
   <div id="printView" class="print-view">
+    <!-- Cover -->
     <div class="print-cover">
-      <p class="print-eyebrow">RECIPE GENERATOR</p>
-      <h1 class="print-title">My Recipe<br><em>Book</em></h1>
+      <p class="print-eyebrow" id="printCoverEyebrow">RECIPE COLLECTION</p>
+      <h1 class="print-title" id="printCoverTitle">My Favorite Recipes</h1>
+      <p class="print-cover-subtitle" id="printCoverSubtitle"></p>
+      <p class="print-cover-author" id="printCoverAuthor"></p>
       <p class="print-date" id="printDate"></p>
-      <p class="print-tagline">&#10024; One ingredient. Endless possibilities.</p>
+      <p class="print-tagline">&#10024; Created with PantrySpark</p>
     </div>
+    <!-- Front matter (copyright, dedication) -->
+    <div id="printFrontMatter"></div>
+    <!-- Table of Contents -->
+    <div id="printTOC"></div>
+    <!-- Recipes -->
     <div id="printRecipes"></div>
+    <!-- Back matter (index) -->
+    <div id="printBackMatter"></div>
   </div>
 
-  <!-- ===================== PAYWALL MODAL ===================== -->
-  <div class="modal-overlay hidden" id="paywallModal">
-    <div class="modal">
-      <button class="modal-close" onclick="closePaywall()">&#10005;</button>
+  <!-- CELEBRATION MODAL — fires at recipe #20 -->
+  <div class="modal-overlay hidden" id="celebrationModal">
+    <div class="modal modal--celebration">
+      <button class="modal-close" onclick="closeCelebrationModal()">&#10005;</button>
+      <div class="celebration-icon">&#127881;</div>
+      <h2 class="modal-title">Your cookbook is ready!</h2>
+      <p class="modal-sub">You've saved <strong>20 recipes</strong>.<br>Turn them into a beautiful cookbook.</p>
+      <div class="cookbook-tiers">
 
-      <div class="modal-hero">
-        <p class="modal-eyebrow" id="paywallEyebrow">ONE-TIME PURCHASE</p>
-        <h2 class="modal-title">Cook more.<br><em>Save more.</em></h2>
-        <p class="modal-sub">Pay once. Keep it forever. Unlimited recipe ideas, unlimited saves, and PDF export.</p>
-      </div>
-
-      <div class="plans plans--two">
-
-        <!-- Free -->
-        <div class="plan plan--free">
-          <div class="plan-top">
-            <span class="plan-name">Free</span>
-            <span class="plan-current-badge">Current</span>
-          </div>
-          <p class="plan-price">$0</p>
-          <ul class="plan-features">
-            <li>&#10003; 5 recipes / day</li>
+        <div class="tier-card" onclick="openCookbookModal('basic')">
+          <div class="tier-price">$4.99</div>
+          <div class="tier-name">Basic Cookbook</div>
+          <ul class="tier-features">
+            <li>&#10003; Clean PDF</li>
+            <li>&#10003; Auto-generated cover</li>
+            <li>&#10003; All recipes included</li>
             <li>&#10003; Nutrition facts</li>
-            <li>&#10003; All cuisines &amp; filters</li>
-            <li>&#10003; Save up to 5 recipes</li>
           </ul>
+          <span class="btn-tier">Create Basic &rarr;</span>
         </div>
 
-        <!-- Premium -->
-        <div class="plan plan--pro">
-          <div class="plan-top">
-            <span class="plan-name">Premium</span>
-            <span class="plan-badge">&#10024; Lifetime</span>
-          </div>
-          <p class="plan-price">$9.99<span class="plan-price-label">one-time</span></p>
-          <ul class="plan-features">
-            <li>&#10003; Unlimited recipes / day</li>
-            <li>&#10003; Unlimited saves</li>
-            <li>&#10003; &#128196; Export Recipe Book PDF</li>
-            <li>&#10003; Nutrition facts</li>
-            <li>&#10003; All cuisines &amp; filters</li>
-			<li>&#10003; Meal plans</li>
+        <div class="tier-card tier-card--featured">
+          <div class="tier-popular-badge">&#10024; Most Popular</div>
+          <div class="tier-price">$9.99</div>
+          <div class="tier-name">Premium Cookbook</div>
+          <ul class="tier-features">
+            <li>&#10003; Custom title &amp; author</li>
+            <li>&#10003; 4 cover styles</li>
+            <li>&#10003; Table of contents</li>
+            <li>&#10003; Page numbers</li>
+            <li>&#10003; Better typography</li>
           </ul>
-          <button class="btn-plan btn-plan--pro" onclick="upgradePlan('premium')">Get Premium &rarr;</button>
+          <span class="btn-tier btn-tier--featured" onclick="event.stopPropagation(); openCookbookModal('premium')">Create Premium &rarr;</span>
+        </div>
+
+        <div class="tier-card" onclick="openCookbookModal('print')">
+          <div class="tier-price">$14.99</div>
+          <div class="tier-name">Print-Ready</div>
+          <ul class="tier-features">
+            <li>&#10003; Everything in Premium</li>
+            <li>&#10003; 6&times;9&quot; KDP-ready</li>
+            <li>&#10003; Copyright &amp; dedication</li>
+            <li>&#10003; Notes pages</li>
+            <li>&#10003; Recipe index</li>
+          </ul>
+          <span class="btn-tier">Create Print-Ready &rarr;</span>
         </div>
 
       </div>
+      <p class="modal-fine">&#9888;&#65039; Stripe payment coming soon &mdash; preview mode active</p>
+    </div>
+  </div>
 
-      <p class="modal-fine">One-time payment. No subscription. No hidden fees.</p>
+  <!-- COOKBOOK CUSTOMIZATION MODAL -->
+  <div class="modal-overlay hidden" id="cookbookModal">
+    <div class="modal modal--cookbook">
+      <button class="modal-close" onclick="closeCookbookModal()">&#10005;</button>
+      <p class="modal-eyebrow" id="cbTierLabel">PREMIUM COOKBOOK &mdash; $9.99</p>
+      <h2 class="modal-title">Make it yours</h2>
+
+      <div class="cookbook-form">
+        <label class="cb-label">Cookbook Title
+          <input type="text" id="cbTitle" placeholder="My Favorite Recipes" maxlength="60" />
+        </label>
+        <label class="cb-label">Subtitle
+          <input type="text" id="cbSubtitle" placeholder="A Collection of Kitchen Adventures" maxlength="80" />
+        </label>
+        <label class="cb-label">Author Name
+          <input type="text" id="cbAuthor" placeholder="Your Name" maxlength="60" />
+        </label>
+        <div id="cbDedicationField" class="hidden">
+          <label class="cb-label">Dedication <span class="cb-optional">(optional)</span>
+            <input type="text" id="cbDedication" placeholder="For Mom, who taught me to cook..." maxlength="120" />
+          </label>
+        </div>
+
+        <div class="cover-style-picker">
+          <p class="cb-label-plain">Cover Style</p>
+          <div class="cover-style-grid">
+            <button class="cover-style-btn active" data-style="rustic" onclick="selectCoverStyle('rustic')">
+              <div class="cover-preview cover-preview--rustic"><span>Rustic</span></div>
+            </button>
+            <button class="cover-style-btn" data-style="modern" onclick="selectCoverStyle('modern')">
+              <div class="cover-preview cover-preview--modern"><span>Modern</span></div>
+            </button>
+            <button class="cover-style-btn" data-style="minimal" onclick="selectCoverStyle('minimal')">
+              <div class="cover-preview cover-preview--minimal"><span>Minimal</span></div>
+            </button>
+            <button class="cover-style-btn" data-style="vintage" onclick="selectCoverStyle('vintage')">
+              <div class="cover-preview cover-preview--vintage"><span>Vintage</span></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" style="width:100%;margin-top:1.2rem" onclick="createCookbook()">
+        &#128196; Create My Cookbook &rarr;
+      </button>
+      <p class="modal-fine" style="margin-top:.75rem">&#9888;&#65039; Payment coming soon &mdash; free preview mode</p>
     </div>
   </div>
 

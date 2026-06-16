@@ -273,112 +273,129 @@ function estimateNutrition(primaryIngredient, method, dietary, serves, ingredien
 }
 
 // ==============================
-// PLAN CONFIG
+// COOKBOOK CONFIG
 // ==============================
-const PLANS = {
-    free: { label: 'Free', limit: 5 },
-    premium: { label: 'Premium', limit: Infinity }
-};
-
-const USAGE_KEY = 'rm_usage'; // { day: 'YYYY-MM-DD', count: N }
-const PLAN_KEY = 'rm_plan'; // 'free' | 'premium'
+const COOKBOOK_GOAL = 20;
 const SAVED_KEY = 'rm_saved';
 
 // ==============================
-// USAGE & PLAN HELPERS
+// COOKBOOK PROGRESS
 // ==============================
-function currentDay() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+function updateCookbookProgress() {
+    const count = getSaved().length;
+    const pct = Math.min(100, Math.round((count / COOKBOOK_GOAL) * 100));
 
-function getUsage() {
-    try {
-        const u = JSON.parse(localStorage.getItem(USAGE_KEY));
-        if (u && u.day === currentDay()) return u;
-    } catch {}
-    return { day: currentDay(), count: 0 };
-}
+    const fill = document.getElementById('cbProgressFill');
+    const countEl = document.getElementById('cbProgressCount');
+    const hint = document.getElementById('cbProgressHint');
+    const btn = document.getElementById('createCookbookBtn');
 
-function setUsage(u) {
-    localStorage.setItem(USAGE_KEY, JSON.stringify(u));
-}
-function getPlan() {
-    return localStorage.getItem(PLAN_KEY) || 'free';
-}
-function setPlan(p) {
-    localStorage.setItem(PLAN_KEY, p);
-}
-function getLimit() {
-    return PLANS[getPlan()].limit;
-}
+    if (fill) fill.style.width = pct + '%';
+    if (countEl) countEl.textContent = `${count} / ${COOKBOOK_GOAL} recipes`;
 
-function recipesLeft() {
-    const limit = getLimit();
-    return limit === Infinity ? Infinity : Math.max(0, limit - getUsage().count);
-}
-
-function incrementUsage() {
-    const u = getUsage();
-    u.count++;
-    setUsage(u);
-}
-
-// ==============================
-// USAGE PILL
-// ==============================
-function renderUsagePill() {
-    const pill = document.getElementById('usagePill');
-    const upgradeBtn = document.getElementById('upgradeBtn');
-    const plan = getPlan();
-    const left = recipesLeft();
-
-    if (plan === 'premium') {
-        pill.className = 'usage-pill pro';
-        pill.innerHTML = `<span class="usage-dot"></span> Premium — Unlimited`;
-        if (upgradeBtn) {
-            upgradeBtn.textContent = 'Manage Plan';
-            upgradeBtn.style.display = 'inline-flex';
+    if (count >= COOKBOOK_GOAL) {
+        if (hint) hint.textContent = '🎉 Your cookbook is ready to create!';
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.add('btn-create-cookbook--ready');
         }
-        return;
-    }
-
-    pill.className = left <= 1 ? 'usage-pill warn' : 'usage-pill';
-    pill.innerHTML = `<span class="usage-dot"></span> ${left} of ${getLimit()} free recipes today`;
-    if (upgradeBtn) {
-        upgradeBtn.textContent = 'View Plans ↗';
-        upgradeBtn.style.display = 'inline-flex';
+    } else {
+        if (hint) hint.textContent = `Save ${COOKBOOK_GOAL - count} more recipe${COOKBOOK_GOAL - count === 1 ? '' : 's'} to unlock your cookbook.`;
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.remove('btn-create-cookbook--ready');
+        }
     }
 }
 
 // ==============================
-// PAYWALL
+// CELEBRATION MODAL
 // ==============================
-function openPaywall() {
-    document.getElementById('paywallModal').classList.remove('hidden');
+function openCelebrationModal() {
+    document.getElementById('celebrationModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
 
-function closePaywall() {
-    document.getElementById('paywallModal').classList.add('hidden');
+function closeCelebrationModal() {
+    document.getElementById('celebrationModal').classList.add('hidden');
     document.body.style.overflow = '';
 }
 
-function upgradePlan(plan) {
-    // TODO: replace with Stripe Checkout redirect
-    // window.location.href = '/checkout?plan=' + plan;
-    // ⚠️ SECURITY: Plan status is currently stored in localStorage only.
-    // Anyone can unlock Premium via the browser console: localStorage.setItem('rm_plan', 'premium')
-    // Before going live, verify plan status server-side (e.g. via a Stripe webhook + your own API).
-    setPlan(plan);
-    closePaywall();
-    renderUsagePill();
-    toast(`✨ Welcome to ${PLANS[plan].label}! You're all set.`);
+document.getElementById('celebrationModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCelebrationModal();
+});
+
+// ==============================
+// COOKBOOK MODAL
+// ==============================
+let currentCookbookTier = 'premium';
+let selectedCoverStyle = 'rustic';
+
+function handleCreateCookbook() {
+    const count = getSaved().length;
+    if (count < COOKBOOK_GOAL) {
+        toast(`Save ${COOKBOOK_GOAL - count} more recipe${COOKBOOK_GOAL - count === 1 ? '' : 's'} to create your cookbook! 📖`);
+        return;
+    }
+    openCelebrationModal();
 }
 
-document.getElementById('paywallModal').addEventListener('click', function (e) {
-    if (e.target === this) closePaywall();
+function openCookbookModal(tier) {
+    currentCookbookTier = tier;
+    closeCelebrationModal();
+
+    if (tier === 'basic') {
+        exportBasicCookbook();
+        return;
+    }
+
+    const labels = {
+        premium: 'PREMIUM COOKBOOK — $9.99',
+        print: 'PRINT-READY COOKBOOK — $14.99'
+    };
+    document.getElementById('cbTierLabel').textContent = labels[tier] || '';
+    document.getElementById('cbDedicationField').classList.toggle('hidden', tier !== 'print');
+
+    // Reset cover style selection
+    selectedCoverStyle = 'rustic';
+    document.querySelectorAll('.cover-style-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.style === 'rustic');
+    });
+
+    document.getElementById('cookbookModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCookbookModal() {
+    document.getElementById('cookbookModal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('cookbookModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCookbookModal();
 });
+
+function selectCoverStyle(style) {
+    selectedCoverStyle = style;
+    document.querySelectorAll('.cover-style-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.style === style);
+    });
+}
+
+function createCookbook() {
+    const title = document.getElementById('cbTitle').value.trim() || 'My Favorite Recipes';
+    const subtitle = document.getElementById('cbSubtitle').value.trim() || '';
+    const author = document.getElementById('cbAuthor').value.trim() || '';
+    const dedication = document.getElementById('cbDedication') ? document.getElementById('cbDedication').value.trim() : '';
+
+    closeCookbookModal();
+
+    if (currentCookbookTier === 'premium') {
+        exportPremiumCookbook({ title, subtitle, author, coverStyle: selectedCoverStyle });
+    } else if (currentCookbookTier === 'print') {
+        exportPrintReadyCookbook({ title, subtitle, author, dedication, coverStyle: selectedCoverStyle });
+    }
+}
 
 // ==============================
 // PILL TOGGLES
@@ -462,11 +479,6 @@ async function generateRecipe() {
         return;
     }
 
-    if (recipesLeft() <= 0) {
-        openPaywall();
-        return;
-    }
-
     const cuisine = getActive('cuisine');
     const dietary = getActive('dietary');
     const meal = getActive('meal');
@@ -481,9 +493,6 @@ async function generateRecipe() {
 
     await new Promise((r) => setTimeout(r, 800 + Math.random() * 600));
 
-    incrementUsage();
-    renderUsagePill();
-
     lastIngredient = ingredient;
     document.getElementById('ingredient').value = '';
     updateAnotherBtn();
@@ -495,12 +504,6 @@ async function generateRecipe() {
     text.classList.remove('hidden');
     loader.classList.add('hidden');
 
-    if (getPlan() === 'free' && recipesLeft() === 0) {
-        setTimeout(
-            () => toast('That was your last free recipe today! Unlock lifetime access to keep going 🍽'),
-            1500
-        );
-    }
 }
 
 // ==============================
@@ -787,15 +790,13 @@ function saveRecipe() {
         toast('Already saved!');
         return;
     }
-    const FREE_SAVE_LIMIT = 5;
-    if (getPlan() === 'free' && saved.length >= FREE_SAVE_LIMIT) {
-        openPaywall();
-        toast('Unlock Premium for just $9.99 — unlimited saves forever! ✨');
-        return;
-    }
     saved.unshift({ ...currentRecipe, savedAt: Date.now() });
     setSaved(saved);
     updateSavedCount();
+    updateCookbookProgress();
+    if (getSaved().length === COOKBOOK_GOAL) {
+        setTimeout(openCelebrationModal, 800);
+    }
     toast('Recipe saved! 💾');
     const section = document.getElementById('savedSection');
     if (!section.classList.contains('hidden')) renderSaved();
@@ -880,83 +881,155 @@ function deleteSaved(i) {
     setSaved(saved);
     updateSavedCount();
     renderSaved();
+    updateCookbookProgress();
     toast('Recipe deleted');
 }
 
 // ==============================
-// PDF EXPORT (Premium only)
+// COOKBOOK EXPORT (3 TIERS)
 // ==============================
-async function exportPDF() {
-    if (getPlan() === 'free') {
-        openPaywall();
-        toast('Unlock Premium for just $9.99 — export your Recipe Book forever! 📄');
-        return;
-    }
 
+function buildRecipeHTML(r, index, total, opts = {}) {
+    const { showPageBreak = true, showNotes = false, tier = 'basic' } = opts;
+    return `
+<div class="print-recipe${index > 0 && showPageBreak ? ' print-page-break' : ''}">
+  <div class="print-recipe-header">
+    ${tier !== 'basic' ? `<span class="print-recipe-num">${String(index + 1).padStart(2, '0')}</span>` : ''}
+    <h2 class="print-recipe-name">${r.name}</h2>
+    <div class="print-recipe-meta">⏱ ${r.time} &bull; Serves ${r.serves} &bull; ${r.difficulty}</div>
+    <div class="print-recipe-tags">${[r.cuisine, r.dietary, r.meal, r.method].filter(Boolean).map(t => `<span class="print-tag">${t}</span>`).join('')}</div>
+  </div>
+  <div class="print-recipe-body">
+    <div class="print-col">
+      <h3>INGREDIENTS</h3>
+      <ul>${r.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>
+    <div class="print-col">
+      <h3>INSTRUCTIONS</h3>
+      <ol>${r.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+    </div>
+  </div>
+  ${r.nutrition ? `
+  <div class="print-nutrition">
+    <h3>ESTIMATED NUTRITION FACTS (PER SERVING)</h3>
+    <div class="print-nutr-row">
+      <span><strong>${r.nutrition.cal}</strong> kcal</span>
+      <span><strong>${r.nutrition.prot}g</strong> Protein</span>
+      <span><strong>${r.nutrition.carb}g</strong> Carbs</span>
+      <span><strong>${r.nutrition.fat}g</strong> Fat</span>
+      <span><strong>${r.nutrition.fib}g</strong> Fiber</span>
+    </div>
+  </div>` : ''}
+  ${showNotes ? `<div class="print-notes-page print-page-break"><h3>NOTES</h3><div class="print-notes-lines">${Array(8).fill('<div class="print-note-line"></div>').join('')}</div></div>` : ''}
+  <p class="print-recipe-footer">Recipe ${index + 1} of ${total} &mdash; Created with PantrySpark &#10024;</p>
+</div>`;
+}
+
+function exportBasicCookbook() {
     const saved = getSaved();
-    if (!saved.length) {
-        toast('Save some recipes first!');
-        return;
-    }
-
-    const btn = document.querySelector('.btn-export-pdf');
-    const originalHTML = btn.innerHTML;
-    btn.innerHTML = '⏳ Preparing PDF…';
-    btn.disabled = true;
+    if (!saved.length) { toast('Save some recipes first!'); return; }
 
     const now = new Date();
-    document.getElementById('printDate').textContent = now.toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric'
-    });
+    const dateStr = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-    document.getElementById('printRecipes').innerHTML = saved
-        .map(
-            (r, i) => `
-    <div class="print-recipe${i > 0 ? ' print-page-break' : ''}">
-      <div class="print-recipe-header">
-        <span class="print-recipe-num">${String(i + 1).padStart(2, '0')}</span>
-        <h2 class="print-recipe-name">${r.name}</h2>
-        <div class="print-recipe-meta">⏱ ${r.time} &bull; Serves ${r.serves} &bull; ${r.difficulty}</div>
-        <div class="print-recipe-tags">${[r.cuisine, r.dietary, r.meal, r.method]
-            .filter(Boolean)
-            .map((t) => `<span class="print-tag">${t}</span>`)
-            .join('')}</div>
-      </div>
-      <div class="print-recipe-body">
-        <div class="print-col">
-          <h3>INGREDIENTS</h3>
-          <ul>${r.ingredients.map((ing) => `<li>${ing}</li>`).join('')}</ul>
-        </div>
-        <div class="print-col">
-          <h3>INSTRUCTIONS</h3>
-          <ol>${r.steps.map((s) => `<li>${s}</li>`).join('')}</ol>
-        </div>
-      </div>
-      ${
-          r.nutrition
-              ? `
-      <div class="print-nutrition">
-        <h3>ESTIMATED NUTRITION FACTS (PER SERVING)</h3>
-        <div class="print-nutr-row">
-          <span><strong>${r.nutrition.cal}</strong> kcal</span>
-          <span><strong>${r.nutrition.prot}g</strong> Protein</span>
-          <span><strong>${r.nutrition.carb}g</strong> Carbs</span>
-          <span><strong>${r.nutrition.fat}g</strong> Fat</span>
-          <span><strong>${r.nutrition.fib}g</strong> Fiber</span>
-        </div>
-      </div>`
-              : ''
-      }
-      <p class="print-recipe-footer">Recipe ${i + 1} of ${saved.length} &mdash; Created with Recipe Generator &#10024;</p>
-    </div>
-  `
-        )
-        .join('');
+    document.getElementById('printCoverTitle').textContent = 'My Favorite Recipes';
+    document.getElementById('printCoverSubtitle').textContent = '';
+    document.getElementById('printCoverAuthor').textContent = '';
+    document.getElementById('printCoverEyebrow').textContent = 'RECIPE COLLECTION';
+    document.getElementById('printDate').textContent = 'Created with PantrySpark · ' + dateStr;
+    document.getElementById('printTOC').innerHTML = '';
+    document.getElementById('printFrontMatter').innerHTML = '';
+    document.getElementById('printBackMatter').innerHTML = '';
 
-    btn.innerHTML = originalHTML;
-    btn.disabled = false;
+    document.getElementById('printRecipes').innerHTML = saved.map((r, i) => buildRecipeHTML(r, i, saved.length, { tier: 'basic' })).join('');
+
+    document.body.className = document.body.className.replace(/print-tier-\w+/g, '') + ' print-tier-basic';
     window.print();
+    setTimeout(() => { document.body.className = document.body.className.replace(/print-tier-\w+/g, ''); }, 1000);
+}
+
+function exportPremiumCookbook({ title, subtitle, author, coverStyle }) {
+    const saved = getSaved();
+    if (!saved.length) { toast('Save some recipes first!'); return; }
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    document.getElementById('printCoverTitle').textContent = title;
+    document.getElementById('printCoverSubtitle').textContent = subtitle;
+    document.getElementById('printCoverAuthor').textContent = author ? 'by ' + author : '';
+    document.getElementById('printCoverEyebrow').textContent = 'A PERSONAL COOKBOOK';
+    document.getElementById('printDate').textContent = dateStr;
+    document.getElementById('printFrontMatter').innerHTML = '';
+    document.getElementById('printBackMatter').innerHTML = '';
+
+    // Table of Contents
+    document.getElementById('printTOC').innerHTML = `
+<div class="print-toc print-page-break">
+  <h2 class="print-toc-title">Table of Contents</h2>
+  <ol class="print-toc-list">
+    ${saved.map((r, i) => `<li><span class="toc-name">${r.name}</span><span class="toc-dots"></span><span class="toc-page">${i + 2}</span></li>`).join('')}
+  </ol>
+</div>`;
+
+    document.getElementById('printRecipes').innerHTML = saved.map((r, i) => buildRecipeHTML(r, i, saved.length, { tier: 'premium' })).join('');
+
+    document.body.className = document.body.className.replace(/print-tier-\w+/g, '').replace(/cover-style-\w+/g, '') + ` print-tier-premium cover-style-${coverStyle}`;
+    window.print();
+    setTimeout(() => { document.body.className = document.body.className.replace(/print-tier-\w+ cover-style-\w+/g, ''); }, 1000);
+}
+
+function exportPrintReadyCookbook({ title, subtitle, author, dedication, coverStyle }) {
+    const saved = getSaved();
+    if (!saved.length) { toast('Save some recipes first!'); return; }
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    document.getElementById('printCoverTitle').textContent = title;
+    document.getElementById('printCoverSubtitle').textContent = subtitle;
+    document.getElementById('printCoverAuthor').textContent = author ? 'by ' + author : '';
+    document.getElementById('printCoverEyebrow').textContent = 'A PERSONAL COOKBOOK';
+    document.getElementById('printDate').textContent = dateStr;
+
+    // Front matter: copyright + dedication
+    const copyrightYear = now.getFullYear();
+    document.getElementById('printFrontMatter').innerHTML = `
+<div class="print-copyright print-page-break">
+  <p>Copyright &copy; ${copyrightYear}${author ? ' ' + author : ''}</p>
+  <p>All rights reserved. No portion of this cookbook may be reproduced without written permission.</p>
+  <p class="print-copyright-sub">Created with PantrySpark &mdash; pantry to table, one recipe at a time.</p>
+</div>
+${dedication ? `
+<div class="print-dedication print-page-break">
+  <p class="print-dedication-text"><em>${dedication}</em></p>
+</div>` : ''}`;
+
+    // TOC
+    document.getElementById('printTOC').innerHTML = `
+<div class="print-toc print-page-break">
+  <h2 class="print-toc-title">Table of Contents</h2>
+  <ol class="print-toc-list">
+    ${saved.map((r, i) => `<li><span class="toc-name">${r.name}</span><span class="toc-dots"></span><span class="toc-page">${i + 4 + (dedication ? 1 : 0)}</span></li>`).join('')}
+  </ol>
+</div>`;
+
+    // Recipes with notes pages
+    document.getElementById('printRecipes').innerHTML = saved.map((r, i) => buildRecipeHTML(r, i, saved.length, { tier: 'print', showNotes: true })).join('');
+
+    // Back matter: alphabetical recipe index
+    const sorted = [...saved].sort((a, b) => a.name.localeCompare(b.name));
+    document.getElementById('printBackMatter').innerHTML = `
+<div class="print-index print-page-break">
+  <h2 class="print-index-title">Recipe Index</h2>
+  <ul class="print-index-list">
+    ${sorted.map(r => `<li>${r.name}${[r.cuisine, r.meal].filter(Boolean).length ? ' <span class="index-meta">(' + [r.cuisine, r.meal].filter(Boolean).join(', ') + ')</span>' : ''}</li>`).join('')}
+  </ul>
+</div>`;
+
+    document.body.className = document.body.className.replace(/print-tier-\w+/g, '').replace(/cover-style-\w+/g, '') + ` print-tier-print cover-style-${coverStyle}`;
+    window.print();
+    setTimeout(() => { document.body.className = document.body.className.replace(/print-tier-\w+ cover-style-\w+/g, ''); }, 1000);
 }
 
 // ==============================
@@ -992,5 +1065,5 @@ document.getElementById('ingredient').addEventListener('keydown', (e) => {
 // ==============================
 // INIT
 // ==============================
-renderUsagePill();
 updateSavedCount();
+updateCookbookProgress();

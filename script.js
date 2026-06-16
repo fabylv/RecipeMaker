@@ -597,11 +597,15 @@ function getTemplate(ing, cui, diet, ml, meth, fridgeExtras = []) {
         'Simple',
         'Quick'
     ]);
-    const name = `${adj} ${cuisineStyle(cui)}${ing} ${mealSuffix(ml)}`;
+    // Include up to 2 fridge extras in the recipe name
+    const extrasLabel = fridgeExtras.length
+        ? ' with ' + fridgeExtras.slice(0, 2).map(capitalize).join(' & ')
+        : '';
+    const name = `${adj} ${cuisineStyle(cui)}${ing}${extrasLabel} ${mealSuffix(ml)}`;
     return {
         name,
         ingredients: [...baseIngredients(ing, cui, fridgeExtras), ...extraIngredients(meth)],
-        steps: buildSteps(ing, meth),
+        steps: buildSteps(ing, meth, fridgeExtras),
         time: cookTime(meth),
         serves: pick(['2', '4', '2–4', '6']),
         difficulty: pick(['Easy', 'Easy', 'Moderate', 'Easy'])
@@ -634,10 +638,25 @@ function baseIngredients(ing, cui, fridgeExtras = []) {
         Greek: ['½ cup feta, crumbled', '1 tsp dried oregano', 'Lemon juice'],
         'Middle Eastern': ['1 tsp cumin', '1 tsp coriander', 'Fresh mint']
     };
-    // Weave in any fridge extras the user typed, skipping duplicates already in base
+    // Weave in any fridge extras, with smart quantity guessing
     const fridgeLines = fridgeExtras
         .filter(e => !base.some(b => b.toLowerCase().includes(e.toLowerCase())))
-        .map(e => `1 cup ${capitalize(e)}`);
+        .map(e => {
+            const el = e.toLowerCase();
+            if (/\begg(s)?\b/.test(el))           return `2 eggs`;
+            if (/\b(rice|pasta|quinoa|oat)/.test(el)) return `1 cup ${capitalize(e)}, cooked`;
+            if (/\b(potato|potatoes)/.test(el))   return `2 medium potatoes, diced`;
+            if (/\b(cheese|parmesan|feta|cheddar)/.test(el)) return `\u00bc cup ${capitalize(e)}, grated or crumbled`;
+            if (/\b(milk|cream|yogurt|broth)/.test(el)) return `\u00bd cup ${capitalize(e)}`;
+            if (/\b(spinach|kale|lettuce|arugula)/.test(el)) return `2 cups ${capitalize(e)}, roughly chopped`;
+            if (/\b(carrot|celery|zucchini|broccoli|cauliflower|asparagus)/.test(el)) return `1 cup ${capitalize(e)}, chopped`;
+            if (/\b(tomato|tomatoes|pepper|peppers|mushroom)/.test(el)) return `1 cup ${capitalize(e)}, sliced`;
+            if (/\b(avocado)/.test(el))           return `1 avocado, sliced`;
+            if (/\b(lemon|lime)/.test(el))        return `1 ${capitalize(e)}, juiced`;
+            if (/\b(butter)/.test(el))            return `2 tbsp ${capitalize(e)}`;
+            if (/\b(oil)/.test(el))               return `1 tbsp ${capitalize(e)}`;
+            return `1 cup ${capitalize(e)}, prepared`;
+        });
     return [...base, ...fridgeLines, ...(cuiExtras[cui] || ['Fresh herbs of your choice'])];
 }
 
@@ -658,10 +677,13 @@ function extraIngredients(meth) {
     );
 }
 
-function buildSteps(ing, meth) {
+function buildSteps(ing, meth, fridgeExtras = []) {
     const i = ing.toLowerCase();
+    const extrasNote = fridgeExtras.length
+        ? ` Prep the ${fridgeExtras.slice(0, 3).map(e => e.toLowerCase()).join(', ')} as well.`
+        : '';
     const prep = [
-        `Wash and prepare the ${i}. Pat dry if needed.`,
+        `Wash and prepare the ${i}. Pat dry if needed.${extrasNote}`,
         `Mince the garlic, dice the onion, and measure all ingredients.`
     ];
     const cook = {

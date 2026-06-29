@@ -23,7 +23,10 @@
         <strong>PantrySpark</strong>
         <span>Simple recipe ideas</span>
       </div>
-
+      <div class="topbar-right">
+        <span class="ai-status-badge ai-status-badge--off" id="aiStatusBadge">🔧 Template</span>
+        <button class="btn-settings" onclick="openSettings()" title="AI Settings" aria-label="AI Settings">⚡</button>
+      </div>
     </nav>
 
     <!-- Hero Header -->
@@ -128,7 +131,10 @@
       <section id="result" class="result-card hidden">
 
         <div class="result-header">
-          <h2 id="recipeName"></h2>
+          <div class="result-header-row">
+            <h2 id="recipeName"></h2>
+            <span class="ai-gen-badge hidden" id="aiGenBadge">✨ AI Recipe</span>
+          </div>
           <div class="result-badges" id="resultBadges"></div>
           <div class="result-meta" id="resultMeta"></div>
         </div>
@@ -144,11 +150,13 @@
         </div>
         <!-- Nutrition facts -->
         <div id="nutritionSection"></div>
+        <!-- Chef's tip (AI mode) -->
+        <div id="chefTipSection" class="chef-tip-section hidden"></div>
 
         <div class="result-actions">
           <button class="btn-action" onclick="saveRecipe()">💾 Save</button>
           <button class="btn-action" id="anotherBtn" onclick="generateAnother()">🔄 Another</button>
-          <button class="btn-action" onclick="shareRecipe()">📤 Share</button>
+          <button class="btn-action" onclick="openShareCard()">📤 Share</button>
           <button class="btn-action btn-new-search" onclick="newSearch()" title="Try a different ingredient">✏️ New Ingredient</button>
         </div>
       </section>
@@ -305,6 +313,71 @@
     </div>
   </div>
 
+  <!-- SHARE CARD MODAL -->
+  <div class="modal-overlay hidden" id="shareCardModal">
+    <div class="modal modal--share">
+      <button class="modal-close" onclick="closeShareCard()">&#10005;</button>
+      <p class="modal-eyebrow">YOUR RECIPE CARD</p>
+      <div class="share-card" id="shareCardInner">
+        <div class="sc-top">
+          <span class="sc-emoji" id="scEmoji">🍽️</span>
+          <div class="sc-brand">
+            <span class="sc-brand-name">✨ PantrySpark</span>
+            <span class="sc-ai-pill hidden" id="scAiBadge">AI ✦</span>
+          </div>
+        </div>
+        <h2 class="sc-name" id="scName">Recipe Name</h2>
+        <div class="sc-meta-row">
+          <span>⏱ <strong id="scTime">—</strong></span>
+          <span>🍽 <strong id="scServes">—</strong></span>
+          <span>📊 <strong id="scDifficulty">—</strong></span>
+        </div>
+        <div class="sc-tags" id="scTags"></div>
+        <div class="sc-ing-wrap">
+          <p class="sc-section-label">WHAT YOU'LL NEED</p>
+          <ul class="sc-ing-list" id="scIngredients"></ul>
+        </div>
+        <div class="sc-tip-box hidden" id="scTip">
+          <span class="sc-tip-icon">👨‍🍳</span>
+          <p id="scTipText"></p>
+        </div>
+        <div class="sc-card-footer">
+          <span>fabylv.github.io/RecipeMaker</span>
+          <span>✨ PantrySpark</span>
+        </div>
+      </div>
+      <div class="share-card-btns">
+        <button class="btn-generate" onclick="shareRecipe()" style="flex:1">📤 Share</button>
+        <button class="btn-action" onclick="downloadShareCard()">📸 Save</button>
+      </div>
+      <p class="share-hint-text">Long-press the card to save as image on mobile</p>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal modal--settings">
+      <button class="modal-close" onclick="closeSettings()">&#10005;</button>
+      <p class="modal-eyebrow">UNLOCK AI RECIPES</p>
+      <h2 class="modal-title">⚡ AI Mode</h2>
+      <div class="settings-info-box">
+        <p>Add your <strong>Claude API key</strong> to get real AI-generated recipes — unique, creative, and genuinely delicious every time.</p>
+        <p class="settings-sub-note">🔒 Stored in your browser only. Never shared.</p>
+      </div>
+      <label class="cb-label">Claude API Key
+        <div class="settings-key-row">
+          <input type="password" id="settingsApiKey" class="settings-api-input" placeholder="sk-ant-api03-..." autocomplete="off" />
+          <button class="sl-btn-secondary" onclick="clearApiKey()" type="button">Clear</button>
+        </div>
+      </label>
+      <p class="settings-link-hint">Get your free key → <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></p>
+      <button class="btn-generate" style="width:100%;margin-top:1.2rem" onclick="saveSettings()">
+        Save &amp; Enable AI ✓
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
   <script src="script.js"></script>
 </body>
 </html>

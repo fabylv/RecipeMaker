@@ -278,6 +278,91 @@ function estimateNutrition(primaryIngredient, method, dietary, serves, ingredien
 const COOKBOOK_GOAL = 10;
 const SAVED_KEY = 'rm_saved';
 const COOKBOOK_CREATED_KEY = 'rm_cookbook_created'; // tracks if user has exported at least once
+const CLAUDE_KEY_STORAGE  = 'rm_claude_key';
+
+const AI_LOADING_MSGS = [
+    'Asking Chef Claude…',
+    'Crafting your recipe…',
+    'Adding the finishing touches…',
+    'Almost ready…'
+];
+
+function getClaudeKey() {
+    return localStorage.getItem(CLAUDE_KEY_STORAGE) || '';
+}
+function setClaudeKey(key) {
+    if (key) localStorage.setItem(CLAUDE_KEY_STORAGE, key.trim());
+    else localStorage.removeItem(CLAUDE_KEY_STORAGE);
+}
+
+async function callClaudeAPI(ingredient, cuisine, dietary, meal, method) {
+    const apiKey = getClaudeKey();
+    if (!apiKey) return null;
+
+    const filters = [
+        cuisine  && `Cuisine style: ${cuisine}`,
+        dietary  && `Dietary requirement: ${dietary}`,
+        meal     && `Meal type: ${meal}`,
+        method   && `Cooking method: ${method}`
+    ].filter(Boolean);
+    const filtersText = filters.length ? '\n' + filters.join('\n') : '';
+
+    const prompt = `You are a creative, inventive chef. Create a genuinely unique and delicious recipe.
+Primary ingredient: ${ingredient}${filtersText}
+
+Make the name evocative and memorable. Use realistic quantities. Give 8-12 ingredients and 5-8 steps.
+Respond ONLY with a valid JSON object (no markdown, no extra text):
+{
+  "name": "Creative recipe name",
+  "ingredients": ["1 lb chicken breast, sliced thin", "..."],
+  "steps": ["Heat olive oil over medium-high...", "..."],
+  "time": "35 min",
+  "serves": "4",
+  "difficulty": "Easy",
+  "tip": "One specific, memorable chef's tip"
+}`;
+
+    try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-3-5-haiku-20241022',
+                max_tokens: 1024,
+                messages: [{ role: 'user', content: prompt }]
+            })
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                toast('⚠️ Invalid API key — check ⚡ Settings');
+                return null;
+            }
+            throw new Error(`api_error_${response.status}`);
+        }
+
+        const data   = await response.json();
+        const text   = data.content[0].text.trim();
+        const match  = text.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error('bad_format');
+
+        const recipe = JSON.parse(match[0]);
+        if (!recipe.name || !recipe.ingredients || !recipe.steps) throw new Error('bad_format');
+        return recipe;
+
+    } catch (err) {
+        if (err.message === 'bad_format') {
+            console.warn('Claude returned unexpected format');
+            return null;
+        }
+        throw err;
+    }
+}
 
 function hasCookbookBeenCreated() {
     return !!localStorage.getItem(COOKBOOK_CREATED_KEY);
@@ -498,14 +583,13 @@ function setIngredient(value) {
 // GENERATE
 // ==============================
 async function generateRecipe() {
-    // Parse natural language — split on comma, newline, 'and', or '&'
     const raw = document.getElementById('ingredient').value.trim();
     const allIngredients = raw
         .split(/\n|,|\s+and\s+|\s*&\s*/i)
         .map(s => s.trim())
         .filter(Boolean);
-    const ingredient = allIngredients[0]; // primary ingredient
-    const extraIngredientsFridge = allIngredients.slice(1);  // the rest
+    const ingredient = allIngredients[0];
+    const extraIngredientsFridge = allIngredients.slice(1);
     if (!ingredient) {
         toast('Enter at least one ingredient!');
         document.getElementById('ingredient').focus();
@@ -514,29 +598,81 @@ async function generateRecipe() {
 
     const cuisine = getActive('cuisine');
     const dietary = getActive('dietary');
-    const meal = getActive('meal');
-    const method = getActive('method');
+    const meal    = getActive('meal');
+    const method  = getActive('method');
 
-    const btn = document.getElementById('generateBtn');
-    const text = document.getElementById('btnText');
+    const btn    = document.getElementById('generateBtn');
+    const text   = document.getElementById('btnText');
     const loader = document.getElementById('btnLoader');
     btn.disabled = true;
-    text.classList.add('hidden');
-    loader.classList.remove('hidden');
+    text.classList.remove('hidden');
+    loader.classList.add('hidden');
 
-    await new Promise((r) => setTimeout(r, 800 + Math.random() * 600));
+    const hasKey = !!getClaudeKey();
+    let loadingInterval = null;
+
+    if (hasKey) {
+        let msgIdx = 0;
+        text.textContent = AI_LOADING_MSGS[0];
+        loadingInterval = setInterval(() => {
+            msgIdx = (msgIdx + 1) % AI_LOADING_MSGS.length;
+            text.textContent = AI_LOADING_MSGS[msgIdx];
+        }, 1300);
+    } else {
+        text.classList.add('hidden');
+        loader.classList.remove('hidden');
+    }
 
     lastIngredient = raw;
     document.getElementById('ingredient').value = '';
     updateAnotherBtn();
 
-    currentRecipe = buildRecipe(ingredient, cuisine, dietary, meal, method, extraIngredientsFridge);
-    renderRecipe(currentRecipe);
+    try {
+        let recipe = null;
 
-    btn.disabled = false;
-    text.classList.remove('hidden');
-    loader.classList.add('hidden');
+        if (hasKey) {
+            try {
+                const aiData = await callClaudeAPI(ingredient, cuisine, dietary, meal, method);
+                if (aiData) {
+                    recipe = {
+                        name:         aiData.name,
+                        cuisine, dietary, meal, method,
+                        ingredients:  aiData.ingredients,
+                        steps:        aiData.steps,
+                        time:         aiData.time       || '35 min',
+                        serves:       aiData.serves     || '4',
+                        difficulty:   aiData.difficulty || 'Easy',
+                        rawIngredient: ingredient,
+                        fridgeExtras:  extraIngredientsFridge,
+                        tip:           aiData.tip || null,
+                        aiGenerated:   true,
+                        nutrition: estimateNutrition(
+                            ingredient, method || 'Baked', dietary,
+                            aiData.serves || '4', aiData.ingredients
+                        )
+                    };
+                }
+            } catch (aiErr) {
+                console.warn('AI generation failed, falling back:', aiErr);
+                toast('AI timeout — using template recipe');
+            }
+        }
 
+        if (!recipe) {
+            await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
+            recipe = buildRecipe(ingredient, cuisine, dietary, meal, method, extraIngredientsFridge);
+        }
+
+        currentRecipe = recipe;
+        renderRecipe(currentRecipe);
+
+    } finally {
+        if (loadingInterval) clearInterval(loadingInterval);
+        btn.disabled = false;
+        text.textContent = 'Generate Recipe';
+        text.classList.remove('hidden');
+        loader.classList.add('hidden');
+    }
 }
 
 // ==============================
@@ -576,6 +712,28 @@ function renderRecipe(r) {
         <div class="nutr-stat"><span class="nutr-val">${n.fib}g</span><span class="nutr-label">Fiber</span></div>
       </div>
     </div>`;
+
+    // AI badge
+    const aiGenBadge = document.getElementById('aiGenBadge');
+    if (aiGenBadge) aiGenBadge.classList.toggle('hidden', !r.aiGenerated);
+
+    // Chef's tip (AI only)
+    const tipSection = document.getElementById('chefTipSection');
+    if (tipSection) {
+        if (r.tip) {
+            tipSection.innerHTML = `
+              <div class="chef-tip-inner">
+                <span class="chef-tip-icon">👨‍🍳</span>
+                <div>
+                  <p class="chef-tip-label">CHEF'S TIP</p>
+                  <p class="chef-tip-text">${r.tip}</p>
+                </div>
+              </div>`;
+            tipSection.classList.remove('hidden');
+        } else {
+            tipSection.classList.add('hidden');
+        }
+    }
 
     const el = document.getElementById('result');
     el.classList.remove('hidden');
@@ -834,6 +992,128 @@ function pick(arr) {
 }
 function capitalize(s) {
     return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
+// ==============================
+// SHARE CARD
+// ==============================
+function openShareCard() {
+    if (!currentRecipe) return;
+    renderShareCard(currentRecipe);
+    document.getElementById('shareCardModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeShareCard() {
+    document.getElementById('shareCardModal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('shareCardModal').addEventListener('click', function(e) {
+    if (e.target === this) closeShareCard();
+});
+
+function renderShareCard(r) {
+    document.getElementById('scEmoji').textContent  = recipeEmoji(r.meal, r.rawIngredient);
+    document.getElementById('scName').textContent   = r.name;
+    document.getElementById('scTime').textContent   = r.time;
+    document.getElementById('scServes').textContent = `Serves ${r.serves}`;
+    document.getElementById('scDifficulty').textContent = r.difficulty;
+
+    // Tags
+    document.getElementById('scTags').innerHTML = [r.cuisine, r.dietary, r.meal, r.method]
+        .filter(Boolean)
+        .map(t => `<span class="sc-tag">${t}</span>`)
+        .join('');
+
+    // Top 6 ingredients
+    document.getElementById('scIngredients').innerHTML = (r.ingredients || [])
+        .slice(0, 6)
+        .map(i => `<li>${i}</li>`)
+        .join('');
+
+    // Chef's tip
+    const tipBox  = document.getElementById('scTip');
+    const tipText = document.getElementById('scTipText');
+    if (r.tip) {
+        tipText.textContent = r.tip;
+        tipBox.classList.remove('hidden');
+    } else {
+        tipBox.classList.add('hidden');
+    }
+
+    // AI badge
+    const aiBadge = document.getElementById('scAiBadge');
+    if (aiBadge) aiBadge.classList.toggle('hidden', !r.aiGenerated);
+}
+
+function downloadShareCard() {
+    const card = document.getElementById('shareCardInner');
+    if (window.html2canvas) {
+        window.html2canvas(card, { scale: 2, backgroundColor: '#FBF5EC', useCORS: true })
+            .then(canvas => {
+                const link    = document.createElement('a');
+                link.download = ((currentRecipe?.name || 'recipe')
+                    .replace(/[^a-z0-9]/gi, '-').toLowerCase()) + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            })
+            .catch(() => toast('📸 Long-press the card to save as image'));
+    } else {
+        toast('📸 Long-press the card to save as image');
+    }
+}
+
+// ==============================
+// SETTINGS
+// ==============================
+function openSettings() {
+    const key   = getClaudeKey();
+    const input = document.getElementById('settingsApiKey');
+    if (input) input.value = key ? '••••••••' + key.slice(-4) : '';
+    document.getElementById('settingsModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSettings() {
+    document.getElementById('settingsModal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('settingsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSettings();
+});
+
+function saveSettings() {
+    const raw = (document.getElementById('settingsApiKey').value || '').trim();
+    if (!raw) {
+        setClaudeKey('');
+        toast('API key cleared');
+    } else if (raw.includes('•')) {
+        toast('Settings saved ✓');
+    } else {
+        setClaudeKey(raw);
+        toast('✨ AI mode enabled! Try generating a recipe.');
+    }
+    closeSettings();
+    updateAiStatus();
+}
+
+function clearApiKey() {
+    setClaudeKey('');
+    const input = document.getElementById('settingsApiKey');
+    if (input) input.value = '';
+    toast('API key cleared');
+    updateAiStatus();
+}
+
+function updateAiStatus() {
+    const hasKey = !!getClaudeKey();
+    const badge  = document.getElementById('aiStatusBadge');
+    if (badge) {
+        badge.textContent = hasKey ? '✨ AI On' : '🔧 Template';
+        badge.className   = 'ai-status-badge ' + (hasKey ? 'ai-status-badge--on' : 'ai-status-badge--off');
+    }
 }
 
 // ==============================
@@ -1226,3 +1506,4 @@ function slCopyList() {
 // ==============================
 updateSavedCount();
 updateCookbookProgress();
+updateAiStatus();

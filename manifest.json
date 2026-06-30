@@ -1,6 +1,6 @@
 {
-  "name": "PantrySpark Recipe Maker",
-  "short_name": "PantrySpark",
+  "name": "ChefAmigo",
+  "short_name": "ChefAmigo",
   "description": "Turn one ingredient into simple recipe ideas.",
   "start_url": "/",
   "display": "standalone",

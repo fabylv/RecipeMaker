@@ -1286,7 +1286,7 @@ function exportCookbook({ title, author, subtitle, coverStyle }) {
       <span><strong>${r.nutrition.fib}g</strong> Fiber</span>
     </div>
   </div>` : ''}
-  <p class="print-recipe-footer">Recipe ${i + 1} of ${saved.length} &mdash; Created with PantrySpark &#10024;</p>
+  <p class="print-recipe-footer">Recipe ${i + 1} of ${saved.length} &mdash; Created with ChefAmigo &#10024;</p>
 </div>`).join('');
 
     // Apply cover style to body for print
